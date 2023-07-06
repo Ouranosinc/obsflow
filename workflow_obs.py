@@ -91,8 +91,13 @@ if __name__ == "__main__":
                                     .isel(time=0, drop=True)
                                     .notnull(),
                                 )
+
                             # save to zarr
                             path = CONFIG["paths"]["task"].format(**cur)
+                            # xs.save_to_netcdf(ds=ds, filename=path.replace('zarr', 'nc'),
+                            #                   rechunk=type_dict["save"]["rechunk"],
+                            #                   # for some reason h5netcdf doesn't write correct files here
+                            #                   netcdf_kwargs={'engine': 'netcdf4'})
                             xs.save_to_zarr(ds=ds, filename=path, **type_dict["save"])
                             pcat.update_from_ds(ds=ds, path=path)
 

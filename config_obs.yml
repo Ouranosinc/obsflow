@@ -33,22 +33,22 @@ extract:
         tasmax: D
         tasmin: D
         pr: D
-        #dtr: D
+        tas: D
       periods: &ref_period
         #- '1980' #'1989' # defaults to None == extract all available data!
         #- '2018' #'2018'
       other_search_criteria:
         source:
           - ERA5-Land
-          - RDRS
+          #- RDRS
     extract_dataset:
       region: &region
-        name: Quebec_test
+        name: Quebec
         method: shape
-        tile_buffer: 1.5
+        tile_buffer: 1.5 #1.5
         shape: /scen3/braun/data/obs_synthese23/gis/lpr_000b16a_e_QC_simpl1.zip!lpr_000b16a_e_QC_simpl1.shp # shape:shape to create a dictionary (deprecated)
     stack_drop_nans: &stack
-      True
+      False
     dask:
       n_workers: 2
       threads_per_worker: 3
@@ -63,11 +63,12 @@ extract:
           dtype: float32
         pr:
           dtype: float32
-        dtr:
+        tas:
           dtype: float32
       rechunk:
         time: -1
-        loc: 10
+        X: 50
+        Y: 50
   station-obs:
     search_data_catalogs:
       allow_resampling: False
@@ -80,9 +81,15 @@ extract:
         #dtr: D
       periods: *ref_period
       other_search_criteria:
-        source: 'AHCCD'
+        source: AHCCD
     extract_dataset:
-      region: 'QUE'
+      region:
+        name: Quebec
+        method: shape
+        tile_buffer: 0
+        buffer: 0.03 # needed to capture all QC stations
+        shape: /scen3/braun/data/obs_synthese23/gis/lpr_000b16a_e_QC_simpl1.zip!lpr_000b16a_e_QC_simpl1.shp
+        # shape: /scen3/braun/data/obs_synthese23/gis/region_admin_poly.zip!region_admin_poly.shp # includes over water
     validation_period:
       miss: "WMO"
       window: 35
@@ -97,6 +104,9 @@ extract:
       memory_limit: 12GB
     save:
       mode: o
+      rechunk:
+        time: 10000
+        station: -1
 # simulations
 
 ###simulation:
