@@ -40,7 +40,7 @@ extract:
       other_search_criteria:
         source:
           - ERA5-Land
-          #- RDRS
+          - RDRS
     extract_dataset:
       region: &region
         name: Quebec
