@@ -1,8 +1,261 @@
+doc: |
+  ==========
+  Indicators
+  ==========
+  Indicator module for observation data analysis.
 realm: atmos
+
 indicators:
-  consecutive_frost_days:
-    base: consecutive_frost_days
-  sdii:
-    base: sdii
+  tg_mean_annual:
+    base: tg_mean
+    cf_attrs:
+      long_name: annual mean of daily mean temperature
+      var_name: tg_mean
+    parameters:
+      freq: YS
+  tg_mean_seasonal:
+    base: tg_mean
+    cf_attrs:
+      long_name: seasonal mean of daily mean temperature
+      var_name: tg_mean
+    parameters:
+      freq: QS-DEC
+  tg_mean_monthly:
+    base: tg_mean
+    cf_attrs:
+      long_name: monthly mean of daily mean temperature
+      var_name: tg_mean
     parameters:
       freq: MS
+  tx_mean_annual:
+    base: tx_mean
+    cf_attrs:
+      long_name: annual mean of daily maximum temperature
+      var_name: tx_mean
+    parameters:
+      freq: YS
+  tx_mean_seasonal:
+    base: tx_mean
+    cf_attrs:
+      long_name: seasonal mean of daily maximum temperature
+      var_name: tx_mean
+    parameters:
+      freq: QS-DEC
+  tx_mean_monthly:
+    base: tx_mean
+    cf_attrs:
+      long_name: monthly mean of daily maximum temperature
+      var_name: tx_mean
+    parameters:
+      freq: MS
+  tn_mean_annual:
+    base: tn_mean
+    cf_attrs:
+      long_name: annual mean of daily minimum temperature
+      var_name: tn_mean
+    parameters:
+      freq: YS
+  tn_mean_seasonal:
+    base: tn_mean
+    cf_attrs:
+      long_name: seasonal mean of daily minimum temperature
+      var_name: tn_mean
+    parameters:
+      freq: QS-DEC
+  tn_mean_monthly:
+    base: tn_mean
+    cf_attrs:
+      long_name: monthly mean of daily minimum temperature
+      var_name: tn_mean
+    parameters:
+      freq: MS
+# ---------------------------- Standard Deviation Intra --------------------------------#
+  tg_stdintra_annual:
+    base: ResamplingIndicator
+    compute: select_resample_op
+    missing: skip
+    src_freq: null
+    input:
+      da: tas
+    parameters:
+      op: std
+      freq: YS
+    cf_attrs:
+      long_name: 'Annual standard deviation of daily mean temperature'
+      description: 'Standard deviation of daily mean temperature over the year'
+      var_name: tg_stdintra
+  tg_stdintra_seasonal:
+    base: ResamplingIndicator
+    compute: select_resample_op
+    missing: skip
+    src_freq: null
+    input:
+      da: tas
+    parameters:
+      op: std
+      freq: QS-DEC
+    cf_attrs:
+      long_name: 'Seasonal standard deviation of daily mean temperature'
+      description: 'Standard deviation of daily mean temperature over the season'
+      var_name: tg_stdintra
+  tg_stdintra_monthly:
+    base: ResamplingIndicator
+    compute: select_resample_op
+    missing: skip
+    src_freq: null
+    input:
+      da: tas
+    parameters:
+      op: std
+      freq: MS
+    cf_attrs:
+      long_name: 'Monthly standard deviation of daily mean temperature'
+      description: 'Standard deviation of daily mean temperature over the month'
+      var_name: tg_stdintra
+  tx_stdintra_annual:
+    base: ResamplingIndicator
+    compute: select_resample_op
+    missing: skip
+    src_freq: null
+    input:
+      da: tasmax
+    parameters:
+      op: std
+      freq: YS
+    cf_attrs:
+      long_name: 'Annual standard deviation of daily maximum temperature'
+      description: 'Standard deviation of daily maximum temperature over the year'
+      var_name: tx_stdintra
+  tx_stdintra_seasonal:
+    base: ResamplingIndicator
+    compute: select_resample_op
+    missing: skip
+    src_freq: null
+    input:
+      da: tasmax
+    parameters:
+      op: std
+      freq: QS-DEC
+    cf_attrs:
+      long_name: 'Seasonal standard deviation of daily maximum temperature'
+      description: 'Standard deviation of daily maximum temperature over the season'
+      var_name: tx_stdintra
+  tx_stdintra_monthly:
+    base: ResamplingIndicator
+    compute: select_resample_op
+    missing: skip
+    src_freq: null
+    input:
+      da: tasmax
+    parameters:
+      op: std
+      freq: MS
+    cf_attrs:
+      long_name: 'Monthly standard deviation of daily maximum temperature'
+      description: 'Standard deviation of daily maximum temperature over the month'
+      var_name: tx_stdintra
+  tn_stdintra_annual:
+    base: ResamplingIndicator
+    compute: select_resample_op
+    missing: skip
+    src_freq: null
+    input:
+      da: tasmin
+    parameters:
+      op: std
+      freq: YS
+    cf_attrs:
+      long_name: 'Annual standard deviation of daily minimum temperature'
+      description: 'Standard deviation of daily minimum temperature over the year'
+      var_name: tn_stdintra
+  tn_stdintra_seasonal:
+    base: ResamplingIndicator
+    compute: select_resample_op
+    missing: skip
+    src_freq: null
+    input:
+      da: tasmin
+    parameters:
+      op: std
+      freq: QS-DEC
+    cf_attrs:
+      long_name: 'Seasonal standard deviation of daily minimum temperature'
+      description: 'Standard deviation of daily minimum temperature over the season'
+      var_name: tn_stdintra
+  tn_stdintra_monthly:
+    base: ResamplingIndicator
+    compute: select_resample_op
+    missing: skip
+    src_freq: null
+    input:
+      da: tasmin
+    parameters:
+      op: std
+      freq: MS
+    cf_attrs:
+      long_name: 'Monthly standard deviation of daily minimum temperature'
+      description: 'Standard deviation of daily minimum temperature over the month'
+      var_name: tn_stdintra
+
+# ---------------------------- Precipitation --------------------------------#
+#  prcptot_annual:
+#    base: prcptot
+#    cf_attrs:
+#      var_name: prcptot
+#    parameters:
+#      freq: YS
+#  prcptot_seasonal:
+#    base: prcptot
+#    cf_attrs:
+#      var_name: prcptot
+#    parameters:
+#      freq: QS-DEC
+#  prcptot_monthly:
+#    base: prcptot
+#    cf_attrs:
+#      var_name: prcptot
+#    parameters:
+#      freq: MS
+#  tn_days_above_0_seasonal:
+#    base: tn_days_above
+#    cf_attrs:
+#      var_name: tn_days_above_0
+#    parameters:
+#      thresh: 0 degC
+#      freq: QS-DEC
+#  tn_days_below_m25_seasonal:
+#    base: tn_days_below
+#    cf_attrs:
+#      var_name: tn_days_below_m25
+#    parameters:
+#      thresh: -25 degC
+#      freq: QS-DEC
+#  tx_days_above_30_annual:
+#    base: tx_days_above
+#    cf_attrs:
+#      var_name: tx_days_above_30
+#    parameters:
+#      thresh: 30 degC
+#      freq: YS
+#  tx_days_above_32_annual:
+#    base: tx_days_above
+#    cf_attrs:
+#      var_name: tx_days_above_32
+#    parameters:
+#      thresh: 32 degC
+#      freq: YS
+#  tropical_nights_gt_22_annual:
+#    base: tn_days_above
+#    cf_attrs:
+#      var_name: tn_days_above_22
+#    parameters:
+#      thresh: 22 degC
+#      freq: YS
+#  tropical_nights_gt_20_annual:
+#    base: tn_days_above
+#    cf_attrs:
+#      long_name: annual number of tropical nights (Tmin > 20 degC)
+#      var_name: tn_days_above_20
+#    parameters:
+#      thresh: 20 degC
+#      freq: YS

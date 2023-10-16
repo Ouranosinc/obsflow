@@ -11,21 +11,27 @@
 #  (by modifying extract:simulation:search_data_catalogs:other_search_criteria:)
 # to make sure all tasks work properly before launching it for all simulations.
 tasks:
-  - extract # Extract the simulation and reference dataset with the right domain and period.
+  #- extract # Extract the simulation and reference dataset with the right domain and period.
   #- regrid # Regrid the simulation onto the reference grid.
   #- biasadjust # Train and adjust the simulation dataset one variable at the time.
   #- cleanup # Join each individually adjusted variable back in one scenario dataset and clean up other details.
   #- rechunk # Rechunk the scenario dataset and save it.
   #- diagnostics # Compute diagnostics (properties, measures and summaries)
-  #- indicators # Compute xclim indicators on the scenario.
-  #- climatology # Compute the climatological mean of the indicators
+  - indicators # Compute xclim indicators on the scenario.
+  # climatology # Compute the climatological mean of the indicators
   #- delta # Compute the deltas of the climatological means.
   #- ensembles # Compute the ensemble statistics on indicators, climatology and deltas.
 
 # Task Arguments
 
 extract:
+  # reanalysis
   reconstruction:
+    dask:
+      n_workers: 2
+      threads_per_worker: 3
+      memory_limit:
+        15GB
     search_data_catalogs:
       allow_resampling: False
       allow_conversion: True
@@ -49,11 +55,6 @@ extract:
         shape: /scen3/braun/data/obs_synthese23/gis/lpr_000b16a_e_QC_simpl1.zip!lpr_000b16a_e_QC_simpl1.shp # shape:shape to create a dictionary (deprecated)
     stack_drop_nans: &stack
       False
-    dask:
-      n_workers: 2
-      threads_per_worker: 3
-      memory_limit:
-        15GB
     save:
       mode: o
       encoding:
@@ -67,9 +68,15 @@ extract:
           dtype: float32
       rechunk:
         time: -1
-        X: 50
-        Y: 50
+        X: 30
+        Y: 30
+  # station observations AHCCD
   station-obs:
+    dask:
+      n_workers: 1
+      threads_per_worker: 2
+      memory_limit:
+        12GB
     search_data_catalogs:
       allow_resampling: False
       allow_conversion: True
@@ -79,7 +86,7 @@ extract:
         tas: D
         #pr: D
         #dtr: D
-      periods: *ref_period
+      periods: #*ref_period
       other_search_criteria:
         source: AHCCD
     extract_dataset:
@@ -98,63 +105,53 @@ extract:
     xarray_open_kwargs:
       chunks:
         station: 1
-    dask:
-      n_workers: 1
-      threads_per_worker: 2
-      memory_limit: 12GB
     save:
       mode: o
       rechunk:
-        time: 10000
-        station: -1
-# simulations
+        time: -1
+        station: 50
+  # simulations
+  simulation:
+    dask:
+      n_workers: 2
+      threads_per_worker: 3
+      memory_limit: 10GB
+    search_data_catalogs:
+      #match_hist_and_fut: True
+      allow_resampling: True
+      #allow_conversion: True
+      variables_and_freqs:
+        #pr: D
+        tas: 3H
+      periods: &sim_period
+        - '1979'
+        - '1985'
+      other_search_criteria: # put the simulations you want here
+        code:
+          - bcs
+    extract_dataset:
+      xr_combine_kwargs:
+        combine_attrs: override
+      xr_open_kwargs:
+        drop_variables:
+          - height
+        chunks:
+          lat: 10
+          lon: 10
+          time: 365
+      region: # all
+    # floor: D  # ???
+    save:
+      mode: o
+      encoding:
+        tas: #*f32
+          dtype: float32
+        #pr: *f32
+      rechunk:
+        time: -1
+        X: 40
+        Y: 40
 
-###simulation:
-#    dask:
-#      n_workers: 2
-#      threads_per_worker: 3
-#      memory_limit: 10GB
-#    search_data_catalogs:
-#      variables_and_freqs: *var_and_freq
-#      match_hist_and_fut: True
-#      allow_conversion: True
-#      allow_resampling: False
-#      periods: &sim_period
-#        - '1950'
-#        - '2100'
-#      other_search_criteria: # put the simulations you want here
-#        mip_era: CMIP6
-#        experiment:
-#          - ssp245
-#          - ssp370
-#        source:
-#          # - CMCC-ESM2
-#          # - KACE-1-0-G
-#        member:
-#          - r1i1p1f1
-#    extract_dataset:
-#      xr_combine_kwargs:
-#        combine_attrs: override
-#      xr_open_kwargs:
-#        drop_variables:
-#          - height
-#        chunks:
-#          lat: 10
-#          lon: 10
-#          time: 365
-#      region: *region
-#    floor: D  # ???
-#    save:
-#      mode: o
-#      encoding:
-#        tasmax: *f32
-#        tasmin: *f32
-#        pr: *f32
-#        dtr: *f32
-#      rechunk:
-#        lat: -1
-#        lon: -1
-#        time: 365
 
 # regrid
 
@@ -277,131 +274,148 @@ extract:
 #    save: *save_time_-1
 
 
-cleanup:
-  dask:
-    n_workers: 4
-    threads_per_worker: 3
-    memory_limit: "6GB"
-  search_data_catalogs:
-    variables_and_freqs:
-      tasmax: D
-      tasmin: D
-      pr: D
-    allow_conversion: True
-    allow_resampling: False
-    other_search_criteria:
-      processing_level: extracted
-  xscen_clean_up:
-    to_level: cleaned
-    maybe_unstack_dict:
-      stack_drop_nans: *stack
-      rechunk:
-        lat: 15
-        lon: 15
-        time: -1
-    variables_and_units: &units
-      tasmax: degC
-      tasmin: degC
-      pr: mm d-1
-    convert_calendar_kwargs:
-      target: standard
-      align_on: random
-    missing_by_var:
-      tasmax: interpolate
-      tasmin: interpolate
-      pr: [ 0 ]
-  save:
-    mode: o
-    encoding:
-      tasmax:
-        dtype: float32
-      tasmin:
-        dtype: float32
-      pr:
-        dtype: float32
-
-
-rechunk:
-  dask:
-    n_workers: 3
-    threads_per_worker: 5
-    memory_limit: "6GB"
-  inputs:
-    processing_level: cleaned
-  xscen_rechunk:
-    worker_mem: 2GB
-    chunks_over_dim:
-      lat: 3
-      lon: 3
-      time: 4year
-    overwrite: True
+#cleanup:
+#  dask:
+#    n_workers: 4
+#    threads_per_worker: 3
+#    memory_limit: "6GB"
+#  search_data_catalogs:
+#    variables_and_freqs:
+#      tasmax: D
+#      tasmin: D
+#      pr: D
+#    allow_conversion: True
+#    allow_resampling: False
+#    other_search_criteria:
+#      processing_level: extracted
+#  xscen_clean_up:
+#    to_level: cleaned
+#    maybe_unstack_dict:
+#      stack_drop_nans: *stack
+#      rechunk:
+#        lat: 15
+#        lon: 15
+#        time: -1
+#    variables_and_units: &units
+#      tasmax: degC
+#      tasmin: degC
+#      pr: mm d-1
+#    convert_calendar_kwargs:
+#      target: standard
+#      align_on: random
+#    missing_by_var:
+#      tasmax: interpolate
+#      tasmin: interpolate
+#      pr: [ 0 ]
+#  save:
+#    mode: o
+#    encoding:
+#      tasmax:
+#        dtype: float32
+#      tasmin:
+#        dtype: float32
+#      pr:
+#        dtype: float32
+#
+#
+#rechunk:
+#  dask:
+#    n_workers: 3
+#    threads_per_worker: 5
+#    memory_limit: "6GB"
+#  inputs:
+#    processing_level: cleaned
+#  xscen_rechunk:
+#    worker_mem: 2GB
+#    chunks_over_dim:
+#      lat: 3
+#      lon: 3
+#      time: 4year
+#    overwrite: True
 
 
 diagnostics:
   dask:
     n_workers: 3
     threads_per_worker: 5
-    memory_limit: "5GB"
+    memory_limit: "8GB"
+  periods: [['1951', '1980'], ['1961', '1990'], ['1971', '2000'], ['1981', '2010'], ['1991', '2020'], ['1991', '2018'], ['1980', '1985']]
   kind:
-    reference:
+    reconstruction:
       inputs:
         processing_level: extracted
         type: reconstruction
       properties_and_measures:
-        period: *ref_period
+#        period: *ref_period
         unstack: *stack
-        change_units_arg: *units
-        to_level_prop: diag-properties-ref
+        change_units_arg:
+          tas: degC
+          tasmin: degC
+          tasmax: degC
+          pr: mm d-1
+        to_level_prop: climatology #diag-properties
       save:
         mode: o
         rechunk:
           lat: -1
           lon: -1
-#    simulation:
-#      inputs:
-#        processing_level: regridded
-#        type: simulation
+    simulation:
+      inputs:
+        processing_level: extracted
+        type: simulations
 #      dref_for_measure:
-#        processing_level: diag-properties-ref
-#      properties_and_measures:
-#        period: *ref_period
-#        unstack: *stack
-#        change_units_arg: *units
-#        to_level_prop: diag-properties-sim
-#        to_level_meas: diag-measures-sim
+#        processing_level: diag-properties-bsc
+      properties_and_measures:
+#        period:
+#          - '1980'
+#          - '1985'
+        unstack: False #*stack
+        to_level_prop: climatology #diag-properties
+        change_units_arg:
+          tas: degC
+          #tasmin: degC
+          #tasmax: degC
+          #pr: mm d-1
+        # to_level_meas: diag-measures-sim
       save:
         mode: o
-#        rechunk:
-#          lat: -1
-#          lon: -1
-#    scenario:
-#      inputs:
-#        processing_level: cleaned
-#        type: simulation
+        rechunk:
+          lat: -1
+          lon: -1
+    station-obs:
+      inputs:
+        processing_level: extracted
+        type: station-obs
 #      dref_for_measure:
-#        processing_level: diag-properties-ref
-#      properties_and_measures:
-#        period: *ref_period
-#        unstack: False
-#        to_level_prop: diag-properties-scen
-#        to_level_meas: diag-measures-scen
-#      save:
-#        mode: o
-#        rechunk:
-#          lat: -1
-#          lon: -1
-  measures_heatmap: {} # automatically passed to the function
-  measures_improvement: {}   # automatically passed to the function
+#        processing_level: diag-properties-obs
+      properties_and_measures:
+#        period: #*ref_period
+        unstack: False
+        to_level_prop: climatology #diag-properties
+        change_units_arg:
+          tas: degC
+          tasmin: degC
+          tasmax: degC
+          #pr: mm d-1
+        #to_level_meas: diag-measures-scen
+      save:
+        mode: o
+        rechunk:
+          lat: -1
+          lon: -1
+  #measures_heatmap: {} # automatically passed to the function
+  #measures_improvement: {}   # automatically passed to the function
 
 
 indicators:
   dask:
     n_workers: 8
     threads_per_worker: 5
-    memory_limit: "2GB"
+    memory_limit: "8GB"
   inputs:
-    processing_level: final
-  compute_indicators: {} # automatically passed to the function
+    processing_level: extracted
+  compute_indicators:
+    to_level: indicators
   save: #*save_time_-1
     mode: o
     rechunk:
@@ -412,53 +426,49 @@ aggregate:
     n_workers: 4
     threads_per_worker: 4
     memory_limit: "6GB"
+  periods: [['1951', '1980'], ['1961', '1990'], ['1971', '2000'], ['1981', '2010'], ['1991', '2020'], ['1991', '2018'], ['1980', '1985']]
   input:
-    clim:
-      processing_level: indicators
-    delta:
-      processing_level: climatology
+    obs:
+      processing_level:
+         - indicators
   climatological_mean: # automatically passed to the function
-    window: 30
-    interval: 10
-    periods: [['1951', '2100']]
     to_level: climatology
-  compute_deltas: # automatically passed to the function
-    kind: "+"
-    reference_horizon: "1991-2020"
-    to_level: 'delta'
+  climatological_op: # automatically passed to the function
+    op: std
+    to_level: climatology
   save:
     mode: 'o'
 
 
-ensembles:
-  dask:
-    n_workers: 3
-    threads_per_worker: 5
-    memory_limit: "5GB"
-  processing_levels:
-    - indicators
-    - climatology
-    - delta
-  ensemble_stats: # automatically passed to the function
-    statistics:
-      ensemble_percentiles: {}
-    stats_kwargs:
-      split: False
-    common_attrs_only: True
-  save:
-    mode: o
+#ensembles:
+#  dask:
+#    n_workers: 3
+#    threads_per_worker: 5
+#    memory_limit: "5GB"
+#  processing_levels:
+#    - indicators
+#    - climatology
+#    - delta
+#  ensemble_stats: # automatically passed to the function
+#    statistics:
+#      ensemble_percentiles: {}
+#    stats_kwargs:
+#      split: False
+#    common_attrs_only: True
+#  save:
+#    mode: o
 
 
 # General Arguments
 
 project: # argument to create the project
-  name: ObsFlow - workflow for observation data
-  version: 1.0.0
-  description: Workflow for observation data climatic analysis
-  id: obs1
+  name: ObsFlow - A workflow for observation data
+  version: 0.2
+  description: Workflow for extracting observation data and performing climatic analysis
+  id: obsflow
 
 scripting: # send an email when code fails or succeed
-  subject: ObsFlow - workflow for observation data
+  subject: ObsFlow - A workflow for observation data
   send_mail_on_exit:
     msg_err: I crashed, something went wrong!
     on_error_only: True
