@@ -13,13 +13,10 @@
 tasks:
   #- extract # Extract the simulation and reference dataset with the right domain and period.
   #- regrid # Regrid the simulation onto the reference grid.
-  #- biasadjust # Train and adjust the simulation dataset one variable at the time.
   #- cleanup # Join each individually adjusted variable back in one scenario dataset and clean up other details.
-  #- rechunk # Rechunk the scenario dataset and save it.
-  #- diagnostics # Compute diagnostics (properties, measures and summaries)
-  - indicators # Compute xclim indicators on the scenario.
-  # climatology # Compute the climatological mean of the indicators
-  #- delta # Compute the deltas of the climatological means.
+  #- indicators # Compute xclim indicators on the scenario.
+  #- climatologies # Compute climatological operations for the indicators (mean, std, trend).
+  - plotting # Make plots of results from climatological operations.
   #- ensembles # Compute the ensemble statistics on indicators, climatology and deltas.
 
 # Task Arguments
@@ -110,47 +107,47 @@ extract:
       rechunk:
         time: -1
         station: 50
-  # simulations
-  simulation:
-    dask:
-      n_workers: 2
-      threads_per_worker: 3
-      memory_limit: 10GB
-    search_data_catalogs:
-      #match_hist_and_fut: True
-      allow_resampling: True
-      #allow_conversion: True
-      variables_and_freqs:
-        #pr: D
-        tas: 3H
-      periods: &sim_period
-        - '1979'
-        - '1985'
-      other_search_criteria: # put the simulations you want here
-        code:
-          - bcs
-    extract_dataset:
-      xr_combine_kwargs:
-        combine_attrs: override
-      xr_open_kwargs:
-        drop_variables:
-          - height
-        chunks:
-          lat: 10
-          lon: 10
-          time: 365
-      region: # all
-    # floor: D  # ???
-    save:
-      mode: o
-      encoding:
-        tas: #*f32
-          dtype: float32
-        #pr: *f32
-      rechunk:
-        time: -1
-        X: 40
-        Y: 40
+#  # simulations
+#  simulation:
+#    dask:
+#      n_workers: 2
+#      threads_per_worker: 3
+#      memory_limit: 10GB
+#    search_data_catalogs:
+#      #match_hist_and_fut: True
+#      allow_resampling: True
+#      #allow_conversion: True
+#      variables_and_freqs:
+#        #pr: D
+#        tas: 3H
+#      periods: &sim_period
+#        - '1979'
+#        - '1985'
+#      other_search_criteria: # put the simulations you want here
+#        code:
+#          - bcs
+#    extract_dataset:
+#      xr_combine_kwargs:
+#        combine_attrs: override
+#      xr_open_kwargs:
+#        drop_variables:
+#          - height
+#        chunks:
+#          lat: 10
+#          lon: 10
+#          time: 365
+#      region: # all
+#    # floor: D  # ???
+#    save:
+#      mode: o
+#      encoding:
+#        tas: #*f32
+#          dtype: float32
+#        #pr: *f32
+#      rechunk:
+#        time: -1
+#        X: 40
+#        Y: 40
 
 
 # regrid
@@ -176,103 +173,6 @@ extract:
 #    mode: o
 #    rechunk:
 #      time: -1
-
-# biasadjust
-
-#biasadjust:
-#  dtr:
-#    dask: &dask_ba
-#      n_workers: 6
-#      threads_per_worker: 3
-#      memory_limit: "4GB"
-#    sim_inputs: &sim_inputs
-#      type: simulation
-#      processing_level: regridded
-#    ref_input: &ref_input
-#      type: reconstruction
-#      processing_level: extracted
-#    xscen_train:
-#      reference_period: *ref_period
-#      method: DetrendedQuantileMapping
-#      group:
-#        group: time.dayofyear
-#        window: 31
-#      xclim_train_args:
-#        kind: "*"
-#        nquantiles: 50
-#    xscen_adjust:
-#      simulation_period: *sim_period
-#      xclim_adjust_args:
-#        detrend:
-#          LoessDetrend:
-#            f: 0.2
-#            niter: 1
-#            d: 0
-#            weights: tricube
-#        interp: nearest
-#        extrapolation: constant
-#      bias_adjust_institution: &b_a_inst
-#        Ouranos
-#      bias_adjust_project: &b_a_pro
-#        template1
-#    save: *save_time_-1
-#  tasmax:
-#    dask: *dask_ba
-#    sim_inputs: *sim_inputs
-#    ref_input: *ref_input
-#    xscen_train:
-#      reference_period: *ref_period
-#      method: DetrendedQuantileMapping
-#      group:
-#        group: time.dayofyear
-#        window: 31
-#      xclim_train_args:
-#        kind: "+"
-#        nquantiles: 50
-#    xscen_adjust:
-#      simulation_period: *sim_period
-#      xclim_adjust_args:
-#        detrend:
-#          LoessDetrend:
-#            f: 0.2
-#            niter: 1
-#            d: 0
-#            weights: tricube
-#        interp: nearest
-#        extrapolation: constant
-#      bias_adjust_institution: *b_a_inst
-#      bias_adjust_project: *b_a_pro
-#    save: *save_time_-1
-#  pr:
-#    dask: *dask_ba
-#    sim_inputs: *sim_inputs
-#    ref_input: *ref_input
-#    xscen_train:
-#      reference_period: *ref_period
-#      method: DetrendedQuantileMapping
-#      group:
-#        group: time.dayofyear
-#        window: 31
-#      jitter_under:
-#        thresh: 0.05 mm d-1
-#      xclim_train_args:
-#        kind: "*"
-#        nquantiles: 50
-#    xscen_adjust:
-#      simulation_period: *sim_period
-#      xclim_adjust_args:
-#        detrend:
-#          LoessDetrend:
-#            f: 0.2
-#            niter: 1
-#            d: 0
-#            weights: tricube
-#        interp: nearest
-#        extrapolation: constant
-#      bias_adjust_institution: *b_a_inst
-#      bias_adjust_project: *b_a_pro
-#    save: *save_time_-1
-
 
 #cleanup:
 #  dask:
@@ -318,94 +218,6 @@ extract:
 #        dtype: float32
 #
 #
-#rechunk:
-#  dask:
-#    n_workers: 3
-#    threads_per_worker: 5
-#    memory_limit: "6GB"
-#  inputs:
-#    processing_level: cleaned
-#  xscen_rechunk:
-#    worker_mem: 2GB
-#    chunks_over_dim:
-#      lat: 3
-#      lon: 3
-#      time: 4year
-#    overwrite: True
-
-
-diagnostics:
-  dask:
-    n_workers: 3
-    threads_per_worker: 5
-    memory_limit: "8GB"
-  periods: [['1951', '1980'], ['1961', '1990'], ['1971', '2000'], ['1981', '2010'], ['1991', '2020'], ['1991', '2018'], ['1980', '1985']]
-  kind:
-    reconstruction:
-      inputs:
-        processing_level: extracted
-        type: reconstruction
-      properties_and_measures:
-#        period: *ref_period
-        unstack: *stack
-        change_units_arg:
-          tas: degC
-          tasmin: degC
-          tasmax: degC
-          pr: mm d-1
-        to_level_prop: climatology #diag-properties
-      save:
-        mode: o
-        rechunk:
-          lat: -1
-          lon: -1
-    simulation:
-      inputs:
-        processing_level: extracted
-        type: simulations
-#      dref_for_measure:
-#        processing_level: diag-properties-bsc
-      properties_and_measures:
-#        period:
-#          - '1980'
-#          - '1985'
-        unstack: False #*stack
-        to_level_prop: climatology #diag-properties
-        change_units_arg:
-          tas: degC
-          #tasmin: degC
-          #tasmax: degC
-          #pr: mm d-1
-        # to_level_meas: diag-measures-sim
-      save:
-        mode: o
-        rechunk:
-          lat: -1
-          lon: -1
-    station-obs:
-      inputs:
-        processing_level: extracted
-        type: station-obs
-#      dref_for_measure:
-#        processing_level: diag-properties-obs
-      properties_and_measures:
-#        period: #*ref_period
-        unstack: False
-        to_level_prop: climatology #diag-properties
-        change_units_arg:
-          tas: degC
-          tasmin: degC
-          tasmax: degC
-          #pr: mm d-1
-        #to_level_meas: diag-measures-scen
-      save:
-        mode: o
-        rechunk:
-          lat: -1
-          lon: -1
-  #measures_heatmap: {} # automatically passed to the function
-  #measures_improvement: {}   # automatically passed to the function
-
 
 indicators:
   dask:
@@ -423,22 +235,141 @@ indicators:
 
 aggregate:
   dask:
-    n_workers: 4
+    n_workers: 10
     threads_per_worker: 4
-    memory_limit: "6GB"
-  periods: [['1951', '1980'], ['1961', '1990'], ['1971', '2000'], ['1981', '2010'], ['1991', '2020'], ['1991', '2018'], ['1980', '1985']]
+    memory_limit: "12GB"
+  periods: [['1951', '1980'], ['1961', '1990'], ['1971', '2000'],
+            ['1981', '2010'], ['1991', '2020'], ['1991', '2018']] # ['1980', '1985']]
   input:
     obs:
       processing_level:
          - indicators
   climatological_mean: # automatically passed to the function
+    op: mean
+#    stride: 5
+#    window: 30
+#    min_periods: 28
     to_level: climatology
-  climatological_op: # automatically passed to the function
+  climatological_std: # automatically passed to the function
     op: std
+#    stride: 5
+#    window: 30
+#    min_periods: 28
+    to_level: climatology
+  climatological_trend: # automatically passed to the function
+    op: linregress
+#    stride: 5
+#    window: 30
+#    min_periods: 28
     to_level: climatology
   save:
     mode: 'o'
 
+plotting:
+  dask:
+    n_workers: 5
+    threads_per_worker: 4
+    memory_limit: "12GB"
+#  periods: [['1951', '1980'], ['1961', '1990'], ['1971', '2000'],
+#            ['1981', '2010'], ['1991', '2020'], ['1991', '2018']]
+  data:
+    processing_level: climatology
+  xrfreq:
+    AS-JAN: year
+    QS-DEC: season
+    MS: month
+  col_wrap:
+    year:
+    season: 2
+    month: 3
+  gridmap_kwars:
+    contourf: True
+  # mean
+  tg_mean_clim_mean: &mean
+    agg_operation: mean
+    label: ''
+    limits:
+      year:
+        vmin: -15
+        vmax: 15
+      season:
+        vmin: -30
+        vmax: 30
+      month:
+        vmin: -30
+        vmax: 30
+    levels: 21
+    ticks: linspace
+    units: degC
+    divergent: 0
+#      cmap: RdBu_r
+  tn_mean_clim_mean: *mean
+  tx_mean_clim_mean: *mean
+  # interannual
+  tg_mean_clim_std: &std_inter
+    agg_operation: std
+    label: interannual
+    limits:
+      year: &vmin_vmax_std
+        vmin: 0
+        vmax: 5
+      season: *vmin_vmax_std
+      month: *vmin_vmax_std
+    levels: &levels_std
+      [0, 0.5, 1, 2, 3, 4, 5, 7.5, 10, 12.5, 15, 20]
+    ticks: *levels_std
+    units: K
+    divergent: False
+#      cmap: afmhot_r
+  tn_mean_clim_std: *std_inter
+  tx_mean_clim_std: *std_inter
+  # intra
+  tg_std_clim_mean: &std_intra
+    agg_operation: std
+    label: intra
+    limits:
+      year: *vmin_vmax_std
+      season: *vmin_vmax_std
+      month: *vmin_vmax_std
+    levels: *levels_std
+    ticks: *levels_std
+    units: K
+    divergent: False
+#      cmap: afmhot_r
+  tn_std_clim_mean: *std_intra
+  tx_std_clim_mean: *std_intra
+  # total
+  tg_std_clim_total: &std_total
+    agg_operation: std
+    label: total
+    limits:
+      year: *vmin_vmax_std
+      season: *vmin_vmax_std
+      month: *vmin_vmax_std
+    levels: *levels_std
+    ticks: *levels_std
+    units: K
+    divergent: False
+#      cmap: afmhot_r
+  tn_std_clim_total: *std_total
+  tx_std_clim_total: *std_total
+  # trend
+  tg_mean_clim_linregress: &trend
+    agg_operation: linregress
+    label: ''
+    limits:
+      year: &vmin_vmax_trend
+        vmin: -2
+        vmax: 2
+      season: *vmin_vmax_trend
+      month: *vmin_vmax_trend
+    levels: 9
+    ticks: linspace
+    units: K
+    divergent: 0
+#        cmap: RdBu_r
+  tn_mean_clim_linregress: *trend
+  tx_mean_clim_linregress: *trend
 
 #ensembles:
 #  dask:

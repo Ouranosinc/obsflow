@@ -6,8 +6,11 @@ doc: |
 realm: atmos
 
 indicators:
+#-------------------------------- Mean ------------------------------------#
   tg_mean_annual:
     base: tg_mean
+    src_freq: null
+    missing: skip
     cf_attrs:
       long_name: annual mean of daily mean temperature
       var_name: tg_mean
@@ -15,6 +18,8 @@ indicators:
       freq: YS
   tg_mean_seasonal:
     base: tg_mean
+    src_freq: null
+    missing: skip
     cf_attrs:
       long_name: seasonal mean of daily mean temperature
       var_name: tg_mean
@@ -22,6 +27,8 @@ indicators:
       freq: QS-DEC
   tg_mean_monthly:
     base: tg_mean
+    src_freq: null
+    missing: skip
     cf_attrs:
       long_name: monthly mean of daily mean temperature
       var_name: tg_mean
@@ -29,6 +36,8 @@ indicators:
       freq: MS
   tx_mean_annual:
     base: tx_mean
+    src_freq: null
+    missing: skip
     cf_attrs:
       long_name: annual mean of daily maximum temperature
       var_name: tx_mean
@@ -36,6 +45,8 @@ indicators:
       freq: YS
   tx_mean_seasonal:
     base: tx_mean
+    src_freq: null
+    missing: skip
     cf_attrs:
       long_name: seasonal mean of daily maximum temperature
       var_name: tx_mean
@@ -43,6 +54,8 @@ indicators:
       freq: QS-DEC
   tx_mean_monthly:
     base: tx_mean
+    src_freq: null
+    missing: skip
     cf_attrs:
       long_name: monthly mean of daily maximum temperature
       var_name: tx_mean
@@ -50,6 +63,8 @@ indicators:
       freq: MS
   tn_mean_annual:
     base: tn_mean
+    missing: skip
+    src_freq: null
     cf_attrs:
       long_name: annual mean of daily minimum temperature
       var_name: tn_mean
@@ -57,6 +72,8 @@ indicators:
       freq: YS
   tn_mean_seasonal:
     base: tn_mean
+    missing: skip
+    src_freq: null
     cf_attrs:
       long_name: seasonal mean of daily minimum temperature
       var_name: tn_mean
@@ -64,15 +81,17 @@ indicators:
       freq: QS-DEC
   tn_mean_monthly:
     base: tn_mean
+    src_freq: null
+    missing: skip
     cf_attrs:
       long_name: monthly mean of daily minimum temperature
       var_name: tn_mean
     parameters:
       freq: MS
 # ---------------------------- Standard Deviation Intra --------------------------------#
-  tg_stdintra_annual:
-    base: ResamplingIndicator
-    compute: select_resample_op
+  tg_std_annual:
+    base: stats
+#    compute: select_resample_op
     missing: skip
     src_freq: null
     input:
@@ -81,12 +100,12 @@ indicators:
       op: std
       freq: YS
     cf_attrs:
-      long_name: 'Annual standard deviation of daily mean temperature'
-      description: 'Standard deviation of daily mean temperature over the year'
-      var_name: tg_stdintra
-  tg_stdintra_seasonal:
-    base: ResamplingIndicator
-    compute: select_resample_op
+      long_name: annual standard deviation of daily mean temperature
+#      description: 'Annual standard deviation of daily mean temperature'
+      var_name: tg_std
+  tg_std_seasonal:
+    base: stats
+#    compute: select_resample_op
     missing: skip
     src_freq: null
     input:
@@ -95,12 +114,12 @@ indicators:
       op: std
       freq: QS-DEC
     cf_attrs:
-      long_name: 'Seasonal standard deviation of daily mean temperature'
-      description: 'Standard deviation of daily mean temperature over the season'
-      var_name: tg_stdintra
-  tg_stdintra_monthly:
-    base: ResamplingIndicator
-    compute: select_resample_op
+      long_name: seasonal standard deviation of daily mean temperature
+#      description: 'Seasonal standard deviation of daily mean temperature'
+      var_name: tg_std
+  tg_std_monthly:
+    base: stats
+#    compute: select_resample_op
     missing: skip
     src_freq: null
     input:
@@ -109,12 +128,12 @@ indicators:
       op: std
       freq: MS
     cf_attrs:
-      long_name: 'Monthly standard deviation of daily mean temperature'
-      description: 'Standard deviation of daily mean temperature over the month'
-      var_name: tg_stdintra
-  tx_stdintra_annual:
-    base: ResamplingIndicator
-    compute: select_resample_op
+      long_name: monthly standard deviation of daily mean temperature
+#      description: 'Monthly standard deviation of daily mean temperature'
+      var_name: tg_std
+  tx_std_annual:
+    base: stats
+#    compute: select_resample_op
     missing: skip
     src_freq: null
     input:
@@ -123,12 +142,12 @@ indicators:
       op: std
       freq: YS
     cf_attrs:
-      long_name: 'Annual standard deviation of daily maximum temperature'
-      description: 'Standard deviation of daily maximum temperature over the year'
-      var_name: tx_stdintra
-  tx_stdintra_seasonal:
-    base: ResamplingIndicator
-    compute: select_resample_op
+      long_name: annual standard deviation of daily maximum temperature
+#      description: 'Standard deviation of daily maximum temperature over the year'
+      var_name: tx_std
+  tx_std_seasonal:
+    base: stats
+#    compute: select_resample_op
     missing: skip
     src_freq: null
     input:
@@ -137,12 +156,12 @@ indicators:
       op: std
       freq: QS-DEC
     cf_attrs:
-      long_name: 'Seasonal standard deviation of daily maximum temperature'
-      description: 'Standard deviation of daily maximum temperature over the season'
-      var_name: tx_stdintra
-  tx_stdintra_monthly:
-    base: ResamplingIndicator
-    compute: select_resample_op
+      long_name: seasonal standard deviation of daily maximum temperature
+#      description: 'Standard deviation of daily maximum temperature over the season'
+      var_name: tx_std
+  tx_std_monthly:
+    base: stats
+#    compute: select_resample_op
     missing: skip
     src_freq: null
     input:
@@ -151,12 +170,12 @@ indicators:
       op: std
       freq: MS
     cf_attrs:
-      long_name: 'Monthly standard deviation of daily maximum temperature'
-      description: 'Standard deviation of daily maximum temperature over the month'
-      var_name: tx_stdintra
-  tn_stdintra_annual:
-    base: ResamplingIndicator
-    compute: select_resample_op
+      long_name: monthly standard deviation of daily maximum temperature
+#      description: 'Standard deviation of daily maximum temperature over the month'
+      var_name: tx_std
+  tn_std_annual:
+    base: stats
+#    compute: select_resample_op
     missing: skip
     src_freq: null
     input:
@@ -165,12 +184,12 @@ indicators:
       op: std
       freq: YS
     cf_attrs:
-      long_name: 'Annual standard deviation of daily minimum temperature'
-      description: 'Standard deviation of daily minimum temperature over the year'
-      var_name: tn_stdintra
-  tn_stdintra_seasonal:
-    base: ResamplingIndicator
-    compute: select_resample_op
+      long_name: annual standard deviation of daily minimum temperature
+#      description: 'Standard deviation of daily minimum temperature over the year'
+      var_name: tn_std
+  tn_std_seasonal:
+    base: stats
+#    compute: select_resample_op
     missing: skip
     src_freq: null
     input:
@@ -179,12 +198,12 @@ indicators:
       op: std
       freq: QS-DEC
     cf_attrs:
-      long_name: 'Seasonal standard deviation of daily minimum temperature'
-      description: 'Standard deviation of daily minimum temperature over the season'
-      var_name: tn_stdintra
-  tn_stdintra_monthly:
-    base: ResamplingIndicator
-    compute: select_resample_op
+      long_name: seasonal standard deviation of daily minimum temperature
+#      description: 'Standard deviation of daily minimum temperature over the season'
+      var_name: tn_std
+  tn_std_monthly:
+    base: stats
+#    compute: select_resample_op
     missing: skip
     src_freq: null
     input:
@@ -193,9 +212,9 @@ indicators:
       op: std
       freq: MS
     cf_attrs:
-      long_name: 'Monthly standard deviation of daily minimum temperature'
-      description: 'Standard deviation of daily minimum temperature over the month'
-      var_name: tn_stdintra
+      long_name: monthly standard deviation of daily minimum temperature
+#      description: 'Standard deviation of daily minimum temperature over the month'
+      var_name: tn_std
 
 # ---------------------------- Precipitation --------------------------------#
 #  prcptot_annual:

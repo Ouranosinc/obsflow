@@ -131,7 +131,7 @@ dmypy.json
 /pre_workflow_from_portail-ing/
 /notebooks/1_catalog.ipynb
 /notebooks/2_getting_started.ipynb
-/notebooks/just_tests_extract_diagnostics.ipynb
+/notebooks/Tests_extract_diagnostics.ipynb
 /just_tests.py
 /marilyn_ferland/clean_trend.ipynb
 /notebooks/checkup.ipynb
@@ -140,3 +140,7 @@ dmypy.json
 /image/var_inter_monthly_climate_monthly_eq.png
 /image/var_intra_monthly_eq.png
 /marilyn_ferland/
+/notebooks/ulinregress_dev.ipynb
+/notebooks/Trying_Things.ipynb
+/Try_climatological_op.py
+/Long_names_source_period.txt
