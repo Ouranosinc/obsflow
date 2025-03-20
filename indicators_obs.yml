@@ -26,858 +26,858 @@ indicators:
       var_name: tg_mean
     parameters:
       freq: YS
-  tg_mean_seasonal:
-    base: tg_mean
-    src_freq: null
-    missing: skip
-    cf_attrs:
-      units: degC
-      long_name: seasonal mean of daily mean temperature
-      var_name: tg_mean
-    parameters:
-      freq: QS-DEC
-  tg_mean_monthly:
-    base: tg_mean
-    src_freq: null
-    missing: skip
-    cf_attrs:
-      units: degC
-      long_name: monthly mean of daily mean temperature
-      var_name: tg_mean
-    parameters:
-      freq: MS
-  tx_mean_annual:
-    base: tx_mean
-    src_freq: null
-    missing: skip
-    cf_attrs:
-      units: degC
-      long_name: annual mean of daily maximum temperature
-      var_name: tx_mean
-    parameters:
-      freq: YS
-  tx_mean_seasonal:
-    base: tx_mean
-    src_freq: null
-    missing: skip
-    cf_attrs:
-      units: degC
-      long_name: seasonal mean of daily maximum temperature
-      var_name: tx_mean
-    parameters:
-      freq: QS-DEC
-  tx_mean_monthly:
-    base: tx_mean
-    src_freq: null
-    missing: skip
-    cf_attrs:
-      units: degC
-      long_name: monthly mean of daily maximum temperature
-      var_name: tx_mean
-    parameters:
-      freq: MS
-  tn_mean_annual:
-    base: tn_mean
-    missing: skip
-    src_freq: null
-    cf_attrs:
-      units: degC
-      long_name: annual mean of daily minimum temperature
-      var_name: tn_mean
-    parameters:
-      freq: YS
-  tn_mean_seasonal:
-    base: tn_mean
-    missing: skip
-    src_freq: null
-    cf_attrs:
-      units: degC
-      long_name: seasonal mean of daily minimum temperature
-      var_name: tn_mean
-    parameters:
-      freq: QS-DEC
-  tn_mean_monthly:
-    base: tn_mean
-    src_freq: null
-    missing: skip
-    cf_attrs:
-      units: degC
-      long_name: monthly mean of daily minimum temperature
-      var_name: tn_mean
-    parameters:
-      freq: MS
-  dtr_annual:
-    base: dtr
-    cf_attrs:
-      units: K
-      long_name: annual mean daily temperature range
-      var_name: dtr
-    parameters:
-      freq: YS
-  dtr_seasonal:
-    base: dtr
-    cf_attrs:
-      nits: K
-      long_name: seasonal mean daily temperature range
-      var_name: dtr
-    parameters:
-      freq: QS-DEC
-  dtr_monthly:
-    base: dtr
-    cf_attrs:
-      units: K
-      long_name: monthly mean daily temperature range
-      var_name: dtr
-    parameters:
-      freq: MS
-  dtrmax_annual:
-    base: dtrmax
-    cf_attrs:
-      units: K
-      long_name: annual maximum daily temperature range
-      var_name: dtrmax
-    parameters:
-      freq: YS
-  dtrmax_seasonal:
-    base: dtrmax
-    cf_attrs:
-      units: K
-      long_name: seasonal maximum daily temperature range
-      var_name: dtrmax
-    parameters:
-      freq: QS-DEC
-  dtrmax_monthly:
-    base: dtrmax
-    cf_attrs:
-      units: K
-      long_name: monthly maximum daily temperature range
-      var_name: dtrmax
-    parameters:
-      freq: MS
+#   tg_mean_seasonal:
+#     base: tg_mean
+#     src_freq: null
+#     missing: skip
+#     cf_attrs:
+#       units: degC
+#       long_name: seasonal mean of daily mean temperature
+#       var_name: tg_mean
+#     parameters:
+#       freq: QS-DEC
+#   tg_mean_monthly:
+#     base: tg_mean
+#     src_freq: null
+#     missing: skip
+#     cf_attrs:
+#       units: degC
+#       long_name: monthly mean of daily mean temperature
+#       var_name: tg_mean
+#     parameters:
+#       freq: MS
+#   tx_mean_annual:
+#     base: tx_mean
+#     src_freq: null
+#     missing: skip
+#     cf_attrs:
+#       units: degC
+#       long_name: annual mean of daily maximum temperature
+#       var_name: tx_mean
+#     parameters:
+#       freq: YS
+#   tx_mean_seasonal:
+#     base: tx_mean
+#     src_freq: null
+#     missing: skip
+#     cf_attrs:
+#       units: degC
+#       long_name: seasonal mean of daily maximum temperature
+#       var_name: tx_mean
+#     parameters:
+#       freq: QS-DEC
+#   tx_mean_monthly:
+#     base: tx_mean
+#     src_freq: null
+#     missing: skip
+#     cf_attrs:
+#       units: degC
+#       long_name: monthly mean of daily maximum temperature
+#       var_name: tx_mean
+#     parameters:
+#       freq: MS
+#   tn_mean_annual:
+#     base: tn_mean
+#     missing: skip
+#     src_freq: null
+#     cf_attrs:
+#       units: degC
+#       long_name: annual mean of daily minimum temperature
+#       var_name: tn_mean
+#     parameters:
+#       freq: YS
+#   tn_mean_seasonal:
+#     base: tn_mean
+#     missing: skip
+#     src_freq: null
+#     cf_attrs:
+#       units: degC
+#       long_name: seasonal mean of daily minimum temperature
+#       var_name: tn_mean
+#     parameters:
+#       freq: QS-DEC
+#   tn_mean_monthly:
+#     base: tn_mean
+#     src_freq: null
+#     missing: skip
+#     cf_attrs:
+#       units: degC
+#       long_name: monthly mean of daily minimum temperature
+#       var_name: tn_mean
+#     parameters:
+#       freq: MS
+#   dtr_annual:
+#     base: dtr
+#     cf_attrs:
+#       units: K
+#       long_name: annual mean daily temperature range
+#       var_name: dtr
+#     parameters:
+#       freq: YS
+#   dtr_seasonal:
+#     base: dtr
+#     cf_attrs:
+#       nits: K
+#       long_name: seasonal mean daily temperature range
+#       var_name: dtr
+#     parameters:
+#       freq: QS-DEC
+#   dtr_monthly:
+#     base: dtr
+#     cf_attrs:
+#       units: K
+#       long_name: monthly mean daily temperature range
+#       var_name: dtr
+#     parameters:
+#       freq: MS
+#   dtrmax_annual:
+#     base: dtrmax
+#     cf_attrs:
+#       units: K
+#       long_name: annual maximum daily temperature range
+#       var_name: dtrmax
+#     parameters:
+#       freq: YS
+#   dtrmax_seasonal:
+#     base: dtrmax
+#     cf_attrs:
+#       units: K
+#       long_name: seasonal maximum daily temperature range
+#       var_name: dtrmax
+#     parameters:
+#       freq: QS-DEC
+#   dtrmax_monthly:
+#     base: dtrmax
+#     cf_attrs:
+#       units: K
+#       long_name: monthly maximum daily temperature range
+#       var_name: dtrmax
+#     parameters:
+#       freq: MS
 
-# ---------------------------- Standard Deviation Temperature Intra --------------------------------#
-  tg_std_annual:
-    base: stats
-#    compute: select_resample_op
-    missing: skip
-    src_freq: null
-    input:
-      da: tas
-    cf_attrs:
-      units: degC
-      long_name: annual standard deviation of daily mean temperature
-#      description: 'Annual standard deviation of daily mean temperature'
-      var_name: tg_std
-    parameters:
-      op: std
-      freq: YS
-  tg_std_seasonal:
-    base: stats
-#    compute: select_resample_op
-    missing: skip
-    src_freq: null
-    input:
-      da: tas
-    cf_attrs:
-      units: degC
-      long_name: seasonal standard deviation of daily mean temperature
-#      description: 'Seasonal standard deviation of daily mean temperature'
-      var_name: tg_std
-    parameters:
-      op: std
-      freq: QS-DEC
-  tg_std_monthly:
-    base: stats
-#    compute: select_resample_op
-    missing: skip
-    src_freq: null
-    input:
-      da: tas
-    cf_attrs:
-      units: degC
-      long_name: monthly standard deviation of daily mean temperature
-#      description: 'Monthly standard deviation of daily mean temperature'
-      var_name: tg_std
-    parameters:
-      op: std
-      freq: MS
-  tx_std_annual:
-    base: stats
-#    compute: select_resample_op
-    missing: skip
-    src_freq: null
-    input:
-      da: tasmax
-    cf_attrs:
-      units: degC
-      long_name: annual standard deviation of daily maximum temperature
-#      description: 'Standard deviation of daily maximum temperature over the year'
-      var_name: tx_std
-    parameters:
-      op: std
-      freq: YS
-  tx_std_seasonal:
-    base: stats
-#    compute: select_resample_op
-    missing: skip
-    src_freq: null
-    input:
-      da: tasmax
-    cf_attrs:
-      units: degC
-      long_name: seasonal standard deviation of daily maximum temperature
-#      description: 'Standard deviation of daily maximum temperature over the season'
-      var_name: tx_std
-    parameters:
-      op: std
-      freq: QS-DEC
-  tx_std_monthly:
-    base: stats
-#    compute: select_resample_op
-    missing: skip
-    src_freq: null
-    input:
-      da: tasmax
-    cf_attrs:
-      units: degC
-      long_name: monthly standard deviation of daily maximum temperature
-#      description: 'Standard deviation of daily maximum temperature over the month'
-      var_name: tx_std
-    parameters:
-      op: std
-      freq: MS
-  tn_std_annual:
-    base: stats
-#    compute: select_resample_op
-    missing: skip
-    src_freq: null
-    input:
-      da: tasmin
-    cf_attrs:
-      units: degC
-      long_name: annual standard deviation of daily minimum temperature
-#      description: 'Standard deviation of daily minimum temperature over the year'
-      var_name: tn_std
-    parameters:
-      op: std
-      freq: YS
-  tn_std_seasonal:
-    base: stats
-#    compute: select_resample_op
-    missing: skip
-    src_freq: null
-    input:
-      da: tasmin
-    cf_attrs:
-      units: degC
-      long_name: seasonal standard deviation of daily minimum temperature
-#      description: 'Standard deviation of daily minimum temperature over the season'
-      var_name: tn_std
-    parameters:
-      op: std
-      freq: QS-DEC
-  tn_std_monthly:
-    base: stats
-#    compute: select_resample_op
-    missing: skip
-    src_freq: null
-    input:
-      da: tasmin
-    cf_attrs:
-      units: degC
-      long_name: monthly standard deviation of daily minimum temperature
-#      description: 'Standard deviation of daily minimum temperature over the month'
-      var_name: tn_std
-    parameters:
-      op: std
-      freq: MS
+# # ---------------------------- Standard Deviation Temperature Intra --------------------------------#
+#   tg_std_annual:
+#     base: stats
+# #    compute: select_resample_op
+#     missing: skip
+#     src_freq: null
+#     input:
+#       da: tas
+#     cf_attrs:
+#       units: degC
+#       long_name: annual standard deviation of daily mean temperature
+# #      description: 'Annual standard deviation of daily mean temperature'
+#       var_name: tg_std
+#     parameters:
+#       op: std
+#       freq: YS
+#   tg_std_seasonal:
+#     base: stats
+# #    compute: select_resample_op
+#     missing: skip
+#     src_freq: null
+#     input:
+#       da: tas
+#     cf_attrs:
+#       units: degC
+#       long_name: seasonal standard deviation of daily mean temperature
+# #      description: 'Seasonal standard deviation of daily mean temperature'
+#       var_name: tg_std
+#     parameters:
+#       op: std
+#       freq: QS-DEC
+#   tg_std_monthly:
+#     base: stats
+# #    compute: select_resample_op
+#     missing: skip
+#     src_freq: null
+#     input:
+#       da: tas
+#     cf_attrs:
+#       units: degC
+#       long_name: monthly standard deviation of daily mean temperature
+# #      description: 'Monthly standard deviation of daily mean temperature'
+#       var_name: tg_std
+#     parameters:
+#       op: std
+#       freq: MS
+#   tx_std_annual:
+#     base: stats
+# #    compute: select_resample_op
+#     missing: skip
+#     src_freq: null
+#     input:
+#       da: tasmax
+#     cf_attrs:
+#       units: degC
+#       long_name: annual standard deviation of daily maximum temperature
+# #      description: 'Standard deviation of daily maximum temperature over the year'
+#       var_name: tx_std
+#     parameters:
+#       op: std
+#       freq: YS
+#   tx_std_seasonal:
+#     base: stats
+# #    compute: select_resample_op
+#     missing: skip
+#     src_freq: null
+#     input:
+#       da: tasmax
+#     cf_attrs:
+#       units: degC
+#       long_name: seasonal standard deviation of daily maximum temperature
+# #      description: 'Standard deviation of daily maximum temperature over the season'
+#       var_name: tx_std
+#     parameters:
+#       op: std
+#       freq: QS-DEC
+#   tx_std_monthly:
+#     base: stats
+# #    compute: select_resample_op
+#     missing: skip
+#     src_freq: null
+#     input:
+#       da: tasmax
+#     cf_attrs:
+#       units: degC
+#       long_name: monthly standard deviation of daily maximum temperature
+# #      description: 'Standard deviation of daily maximum temperature over the month'
+#       var_name: tx_std
+#     parameters:
+#       op: std
+#       freq: MS
+#   tn_std_annual:
+#     base: stats
+# #    compute: select_resample_op
+#     missing: skip
+#     src_freq: null
+#     input:
+#       da: tasmin
+#     cf_attrs:
+#       units: degC
+#       long_name: annual standard deviation of daily minimum temperature
+# #      description: 'Standard deviation of daily minimum temperature over the year'
+#       var_name: tn_std
+#     parameters:
+#       op: std
+#       freq: YS
+#   tn_std_seasonal:
+#     base: stats
+# #    compute: select_resample_op
+#     missing: skip
+#     src_freq: null
+#     input:
+#       da: tasmin
+#     cf_attrs:
+#       units: degC
+#       long_name: seasonal standard deviation of daily minimum temperature
+# #      description: 'Standard deviation of daily minimum temperature over the season'
+#       var_name: tn_std
+#     parameters:
+#       op: std
+#       freq: QS-DEC
+#   tn_std_monthly:
+#     base: stats
+# #    compute: select_resample_op
+#     missing: skip
+#     src_freq: null
+#     input:
+#       da: tasmin
+#     cf_attrs:
+#       units: degC
+#       long_name: monthly standard deviation of daily minimum temperature
+# #      description: 'Standard deviation of daily minimum temperature over the month'
+#       var_name: tn_std
+#     parameters:
+#       op: std
+#       freq: MS
 
-# ----------------------------- Extreme Temperature Indicators ---------------------------------#
-  days_above_0_annual:
-    base: tn_days_above
-    cf_attrs:
-      long_name: annual number of days with minimum temperature above 0 ˚C
-      var_name: days_above_0
-    parameters:
-      thresh: 0 degC
-      freq: YS
-  days_above_0_seasonal:
-    base: tn_days_above
-    cf_attrs:
-      long_name: seasonal number of days with minimum temperature above 0 ˚C
-      var_name: days_above_0
-    parameters:
-      thresh: 0 degC
-      freq: QS-DEC
-  days_above_0_monthly:
-    base: tn_days_above
-    cf_attrs:
-      long_name: monthly number of days with minimum temperature above 0 ˚C
-      var_name: days_above_0
-    parameters:
-      thresh: 0 degC
-      freq: MS
-  days_below_m25_annual:
-    base: tn_days_below
-    cf_attrs:
-      long_name: annual number of days with minimum temperature below -25 ˚C
-      var_name: days_below_m25
-    parameters:
-      thresh: -25 degC
-      freq: YS
-  days_below_m25_seasonal:
-    base: tn_days_below
-    cf_attrs:
-      long_name: seasonal number of days with minimum temperature below -25 ˚C
-      var_name: days_below_m25
-    parameters:
-      thresh: -25 degC
-      freq: QS-DEC
-  days_below_m25_monthly:
-    base: tn_days_below
-    cf_attrs:
-      long_name: monthly number of days with minimum temperature below -25 ˚C
-      var_name: days_below_m25
-    parameters:
-      thresh: -25 degC
-      freq: MS
-  hot_days_30_annual:
-    base: tx_days_above
-    cf_attrs:
-      long_name: annual number of hot days (Tmax > 30 ˚C)
-      var_name: hot_days_gt_30
-    parameters:
-      thresh: 30 degC
-      freq: YS
-  hot_days_32_annual:
-    base: tx_days_above
-    cf_attrs:
-      long_name: annual number of hot days (Tmax > 32 ˚C)
-      var_name: hot_days_gt_32
-    parameters:
-      thresh: 32 degC
-      freq: YS
-  tropical_nights_gt_22_annual:
-    base: tn_days_above
-    cf_attrs:
-      long_name: annual number of tropical nights (Tmin > 22 ˚C)
-      var_name: tropical_nights_gt_22
-    parameters:
-      thresh: 22 degC
-      freq: YS
-  tropical_nights_gt_20_annual:
-    base: tn_days_above
-    cf_attrs:
-      long_name: annual number of tropical nights (Tmin > 20 ˚C)
-      var_name: tropical_nights_gt_20
-    parameters:
-      thresh: 20 degC
-      freq: YS
-#  heat_wave_days_class3:
-#    base: heat_wave_frequency
-#    cf_attrs:
-#      long_name: annual number of heat wave days (Tmin > 16 ˚C and Tmax > 31 ˚C)
-#      var_name: heat_wave_days_class3
-#    parameters:
-#      thresh_tasmin: 16 degC
-#      thresh_tasmax: 31 degC
-#      window: 1
-#      freq: YS
-#  heat_wave_3days_frequency_class3:
-#    base: heat_wave_frequency
-#    cf_attrs:
-#      long_name: annual number of heat wave events of three days or more (Tmin > 16 ˚C and Tmax > 31 ˚C)
-#      var_name: heat_wave_3days_frequency_class3
-#    parameters:
-#      thresh_tasmin: 16 degC
-#      thresh_tasmax: 31 degC
-#      window: 3
-#      freq: YS
-  heat_spell_total_length_class1:   # NEW
-    base: heat_spell_total_length
-    cf_attrs:
-      var_name: heat_spell_total_length_class1
-      long_name: Heat spell total length class 1
-    parameters:
-      resample_before_rl: False
-      thresh_tasmin: 20 degC
-      thresh_tasmax: 33 degC
-      window: 3
-      win_reducer: mean
-      freq: YS
-    keywords: rolling
-  heat_spell_total_length_class2: # NEW
-    base: heat_spell_total_length
-    cf_attrs:
-      var_name: heat_spell_total_length_class2
-      long_name: Heat spell total length class 2
-    parameters:
-      resample_before_rl: False
-      thresh_tasmin: 18 degC
-      thresh_tasmax: 31 degC
-      window: 3
-      win_reducer: mean
-      freq: YS
-    keywords: rolling
-  heat_spell_total_length_class3: # NEW
-    base: heat_spell_total_length
-    cf_attrs:
-      var_name: heat_spell_total_length_class3
-      long_name: Heat spell total length class 3
-    parameters:
-      resample_before_rl: False
-      thresh_tasmin: 16 degC
-      thresh_tasmax: 31 degC
-      window: 3
-      win_reducer: mean
-      freq: YS
-    keywords: rolling
-  heat_spell_frequency_class1: # NEW
-    base: heat_spell_frequency
-    cf_attrs:
-      var_name: heat_spell_frequency_class1
-      long_name: Heat spell frequency class 1
-    parameters:
-      resample_before_rl: False
-      thresh_tasmin: 20 degC
-      thresh_tasmax: 33 degC
-      window: 3
-      win_reducer: mean
-      freq: YS
-    keywords: rolling
-  heat_spell_frequency_class2: # NEW
-    base: heat_spell_frequency
-    cf_attrs:
-      var_name: heat_spell_frequency_class2
-      long_name: Heat spell frequency class 2
-    parameters:
-      resample_before_rl: False
-      thresh_tasmin: 18 degC
-      thresh_tasmax: 31 degC
-      window: 3
-      win_reducer: mean
-      freq: YS
-    keywords: rolling
-  heat_spell_frequency_class3: # NEW
-    base: heat_spell_frequency
-    cf_attrs:
-      var_name: heat_spell_frequency_class3
-      long_name: Heat spell frequency class 3
-    parameters:
-      resample_before_rl: False
-      thresh_tasmin: 16 degC
-      thresh_tasmax: 31 degC
-      window: 3
-      win_reducer: mean
-      freq: YS
-    keywords: rolling
-  cold_spell_total_length_class1: # NEW
-    base: ResamplingIndicator
-    compute: bivariate_spell_length_statistics
-    cf_attrs:
-      var_name: cold_spell_total_length_class1
-      long_name: Cold spell total length class 1
-      description: "{freq} total_length of cold spell events. A cold spell occurs when the {window}-day averages of daily minimum and maximum temperatures each are below {threshold1} and {threshold2}.  All days of the {window}-day period are considered part of the spell."
-    input:
-      data1: tasmin
-      data2: tasmax
-    parameters:
-      resample_before_rl: False
-      threshold1: -23 degC
-      threshold2: -15 degC
-      spell_reducer: sum
-      window: 2
-      win_reducer: mean
-      op: "<="
-      freq: YS-JUL
-    keywords: rolling
-  cold_spell_total_length_class2: # NEW
-    base: .cold_spell_total_length_class1
-    cf_attrs:
-      var_name: cold_spell_total_length_class2
-      long_name: Cold spell total length class 2
-    parameters:
-      threshold1: -28 degC
-      threshold2: -16 degC
-  cold_spell_total_length_class3: # NEW
-    base: .cold_spell_total_length_class1
-    cf_attrs:
-      var_name: cold_spell_total_length_class3
-      long_name: Cold spell total length class 3
-    parameters:
-      threshold1: -29 degC
-      threshold2: -20 degC
-  cold_spell_frequency_class1: # NEW
-    base: ResamplingIndicator
-    compute: bivariate_spell_length_statistics
-    cf_attrs:
-      var_name: cold_spell_frequency_class1
-      long_name: Cold spell frequency class 1
-      description: "{freq} frequency of cold spell events. A cold spell occurs when the {window}-day averages of daily minimum and maximum temperatures each are below {threshold1} and {threshold2}.  All days of the {window}-day period are considered part of the spell."
-    input:
-      data1: tasmin
-      data2: tasmax
-    parameters:
-      resample_before_rl: False
-      threshold1: -23 degC
-      threshold2: -15 degC
-      spell_reducer: count
-      window: 2
-      win_reducer: mean
-      op: "<="
-      freq: YS-JUL
-    keywords: rolling
-  cold_spell_frequency_class2: # NEW
-    base: .cold_spell_frequency_class1
-    cf_attrs:
-      var_name: cold_spell_frequency_class2
-      long_name: Cold spell frequency class 2
-    parameters:
-      threshold1: -28 degC
-      threshold2: -16 degC
-  cold_spell_frequency_class3: # NEW
-    base: .cold_spell_frequency_class1
-    cf_attrs:
-      var_name: cold_spell_frequency_class3
-      long_name: Cold spell frequency class 3
-    parameters:
-      threshold1: -29 degC
-      threshold2: -20 degC
-  tx_max_annual: # NEW
-    base: tx_max
-    cf_attrs:
-      units: degC
-      long_name: annual maximum of daily maximum temperature
-      var_name: tx_max
-    parameters:
-      freq: YS
-  tn_min_annual: # NEW
-    base: tn_min
-    cf_attrs:
-      units: degC
-      long_name: annual minimum of daily minimum temperature
-      var_name: tn_min
-    parameters:
-      freq: YS
+# # ----------------------------- Extreme Temperature Indicators ---------------------------------#
+#   days_above_0_annual:
+#     base: tn_days_above
+#     cf_attrs:
+#       long_name: annual number of days with minimum temperature above 0 ˚C
+#       var_name: days_above_0
+#     parameters:
+#       thresh: 0 degC
+#       freq: YS
+#   days_above_0_seasonal:
+#     base: tn_days_above
+#     cf_attrs:
+#       long_name: seasonal number of days with minimum temperature above 0 ˚C
+#       var_name: days_above_0
+#     parameters:
+#       thresh: 0 degC
+#       freq: QS-DEC
+#   days_above_0_monthly:
+#     base: tn_days_above
+#     cf_attrs:
+#       long_name: monthly number of days with minimum temperature above 0 ˚C
+#       var_name: days_above_0
+#     parameters:
+#       thresh: 0 degC
+#       freq: MS
+#   days_below_m25_annual:
+#     base: tn_days_below
+#     cf_attrs:
+#       long_name: annual number of days with minimum temperature below -25 ˚C
+#       var_name: days_below_m25
+#     parameters:
+#       thresh: -25 degC
+#       freq: YS
+#   days_below_m25_seasonal:
+#     base: tn_days_below
+#     cf_attrs:
+#       long_name: seasonal number of days with minimum temperature below -25 ˚C
+#       var_name: days_below_m25
+#     parameters:
+#       thresh: -25 degC
+#       freq: QS-DEC
+#   days_below_m25_monthly:
+#     base: tn_days_below
+#     cf_attrs:
+#       long_name: monthly number of days with minimum temperature below -25 ˚C
+#       var_name: days_below_m25
+#     parameters:
+#       thresh: -25 degC
+#       freq: MS
+#   hot_days_30_annual:
+#     base: tx_days_above
+#     cf_attrs:
+#       long_name: annual number of hot days (Tmax > 30 ˚C)
+#       var_name: hot_days_gt_30
+#     parameters:
+#       thresh: 30 degC
+#       freq: YS
+#   hot_days_32_annual:
+#     base: tx_days_above
+#     cf_attrs:
+#       long_name: annual number of hot days (Tmax > 32 ˚C)
+#       var_name: hot_days_gt_32
+#     parameters:
+#       thresh: 32 degC
+#       freq: YS
+#   tropical_nights_gt_22_annual:
+#     base: tn_days_above
+#     cf_attrs:
+#       long_name: annual number of tropical nights (Tmin > 22 ˚C)
+#       var_name: tropical_nights_gt_22
+#     parameters:
+#       thresh: 22 degC
+#       freq: YS
+#   tropical_nights_gt_20_annual:
+#     base: tn_days_above
+#     cf_attrs:
+#       long_name: annual number of tropical nights (Tmin > 20 ˚C)
+#       var_name: tropical_nights_gt_20
+#     parameters:
+#       thresh: 20 degC
+#       freq: YS
+# #  heat_wave_days_class3:
+# #    base: heat_wave_frequency
+# #    cf_attrs:
+# #      long_name: annual number of heat wave days (Tmin > 16 ˚C and Tmax > 31 ˚C)
+# #      var_name: heat_wave_days_class3
+# #    parameters:
+# #      thresh_tasmin: 16 degC
+# #      thresh_tasmax: 31 degC
+# #      window: 1
+# #      freq: YS
+# #  heat_wave_3days_frequency_class3:
+# #    base: heat_wave_frequency
+# #    cf_attrs:
+# #      long_name: annual number of heat wave events of three days or more (Tmin > 16 ˚C and Tmax > 31 ˚C)
+# #      var_name: heat_wave_3days_frequency_class3
+# #    parameters:
+# #      thresh_tasmin: 16 degC
+# #      thresh_tasmax: 31 degC
+# #      window: 3
+# #      freq: YS
+#   heat_spell_total_length_class1:   # NEW
+#     base: heat_spell_total_length
+#     cf_attrs:
+#       var_name: heat_spell_total_length_class1
+#       long_name: Heat spell total length class 1
+#     parameters:
+#       resample_before_rl: False
+#       thresh_tasmin: 20 degC
+#       thresh_tasmax: 33 degC
+#       window: 3
+#       win_reducer: mean
+#       freq: YS
+#     keywords: rolling
+#   heat_spell_total_length_class2: # NEW
+#     base: heat_spell_total_length
+#     cf_attrs:
+#       var_name: heat_spell_total_length_class2
+#       long_name: Heat spell total length class 2
+#     parameters:
+#       resample_before_rl: False
+#       thresh_tasmin: 18 degC
+#       thresh_tasmax: 31 degC
+#       window: 3
+#       win_reducer: mean
+#       freq: YS
+#     keywords: rolling
+#   heat_spell_total_length_class3: # NEW
+#     base: heat_spell_total_length
+#     cf_attrs:
+#       var_name: heat_spell_total_length_class3
+#       long_name: Heat spell total length class 3
+#     parameters:
+#       resample_before_rl: False
+#       thresh_tasmin: 16 degC
+#       thresh_tasmax: 31 degC
+#       window: 3
+#       win_reducer: mean
+#       freq: YS
+#     keywords: rolling
+#   heat_spell_frequency_class1: # NEW
+#     base: heat_spell_frequency
+#     cf_attrs:
+#       var_name: heat_spell_frequency_class1
+#       long_name: Heat spell frequency class 1
+#     parameters:
+#       resample_before_rl: False
+#       thresh_tasmin: 20 degC
+#       thresh_tasmax: 33 degC
+#       window: 3
+#       win_reducer: mean
+#       freq: YS
+#     keywords: rolling
+#   heat_spell_frequency_class2: # NEW
+#     base: heat_spell_frequency
+#     cf_attrs:
+#       var_name: heat_spell_frequency_class2
+#       long_name: Heat spell frequency class 2
+#     parameters:
+#       resample_before_rl: False
+#       thresh_tasmin: 18 degC
+#       thresh_tasmax: 31 degC
+#       window: 3
+#       win_reducer: mean
+#       freq: YS
+#     keywords: rolling
+#   heat_spell_frequency_class3: # NEW
+#     base: heat_spell_frequency
+#     cf_attrs:
+#       var_name: heat_spell_frequency_class3
+#       long_name: Heat spell frequency class 3
+#     parameters:
+#       resample_before_rl: False
+#       thresh_tasmin: 16 degC
+#       thresh_tasmax: 31 degC
+#       window: 3
+#       win_reducer: mean
+#       freq: YS
+#     keywords: rolling
+#   cold_spell_total_length_class1: # NEW
+#     base: ResamplingIndicator
+#     compute: bivariate_spell_length_statistics
+#     cf_attrs:
+#       var_name: cold_spell_total_length_class1
+#       long_name: Cold spell total length class 1
+#       description: "{freq} total_length of cold spell events. A cold spell occurs when the {window}-day averages of daily minimum and maximum temperatures each are below {threshold1} and {threshold2}.  All days of the {window}-day period are considered part of the spell."
+#     input:
+#       data1: tasmin
+#       data2: tasmax
+#     parameters:
+#       resample_before_rl: False
+#       threshold1: -23 degC
+#       threshold2: -15 degC
+#       spell_reducer: sum
+#       window: 2
+#       win_reducer: mean
+#       op: "<="
+#       freq: YS-JUL
+#     keywords: rolling
+#   cold_spell_total_length_class2: # NEW
+#     base: .cold_spell_total_length_class1
+#     cf_attrs:
+#       var_name: cold_spell_total_length_class2
+#       long_name: Cold spell total length class 2
+#     parameters:
+#       threshold1: -28 degC
+#       threshold2: -16 degC
+#   cold_spell_total_length_class3: # NEW
+#     base: .cold_spell_total_length_class1
+#     cf_attrs:
+#       var_name: cold_spell_total_length_class3
+#       long_name: Cold spell total length class 3
+#     parameters:
+#       threshold1: -29 degC
+#       threshold2: -20 degC
+#   cold_spell_frequency_class1: # NEW
+#     base: ResamplingIndicator
+#     compute: bivariate_spell_length_statistics
+#     cf_attrs:
+#       var_name: cold_spell_frequency_class1
+#       long_name: Cold spell frequency class 1
+#       description: "{freq} frequency of cold spell events. A cold spell occurs when the {window}-day averages of daily minimum and maximum temperatures each are below {threshold1} and {threshold2}.  All days of the {window}-day period are considered part of the spell."
+#     input:
+#       data1: tasmin
+#       data2: tasmax
+#     parameters:
+#       resample_before_rl: False
+#       threshold1: -23 degC
+#       threshold2: -15 degC
+#       spell_reducer: count
+#       window: 2
+#       win_reducer: mean
+#       op: "<="
+#       freq: YS-JUL
+#     keywords: rolling
+#   cold_spell_frequency_class2: # NEW
+#     base: .cold_spell_frequency_class1
+#     cf_attrs:
+#       var_name: cold_spell_frequency_class2
+#       long_name: Cold spell frequency class 2
+#     parameters:
+#       threshold1: -28 degC
+#       threshold2: -16 degC
+#   cold_spell_frequency_class3: # NEW
+#     base: .cold_spell_frequency_class1
+#     cf_attrs:
+#       var_name: cold_spell_frequency_class3
+#       long_name: Cold spell frequency class 3
+#     parameters:
+#       threshold1: -29 degC
+#       threshold2: -20 degC
+#   tx_max_annual: # NEW
+#     base: tx_max
+#     cf_attrs:
+#       units: degC
+#       long_name: annual maximum of daily maximum temperature
+#       var_name: tx_max
+#     parameters:
+#       freq: YS
+#   tn_min_annual: # NEW
+#     base: tn_min
+#     cf_attrs:
+#       units: degC
+#       long_name: annual minimum of daily minimum temperature
+#       var_name: tn_min
+#     parameters:
+#       freq: YS
 
-# ---------------------------- Agro-climatic Indicators -------------------------------#
-  growing_degree_days_gt_5_annual:   # modified from base 4! NEW
-    base: growing_degree_days
-    cf_attrs:
-      long_name: annual growing degree days with a threshold of 5 ˚C
-      var_name: growing_degree_days_gt_5
-    parameters:
-      thresh: 5 degC
-      freq: YS
-#  freezing_degree_days_lt_0_annual:
-#    base: freezing_degree_days
-#    cf_attrs:
-#      long_name: annual freezing degree days with a threshold of 0 ˚C
-#      var_name: freezing_degree_days_lt_0
-#    parameters:
-#      thresh: 0 degC
-#      freq: YS
-  freezing_degree_days_lt_0_start_july:  # NEW
-    base: freezing_degree_days
-    cf_attrs:
-      long_name: annual freezing degree days with a threshold of 0 ˚C starting on July 1st
-      var_name: freezing_degree_days_lt_0
-    parameters:
-      thresh: 0 degC
-      freq: YS-JUL
-  thawing_degree_days_gt_0: # NEW
-    base: thawing_degree_days
-    cf_attrs:
-      long_name: annual degree days above a threshold of 0 ˚C
-      var_name: degree_days_above_0
-    parameters:
-      thresh: 0 degC
-      freq: YS
-  freeze_thaw_cycles_annual:
-    base: dlyfrzthw
-    cf_attrs:
-      long_name: annual number of freeze-thaw cycles
-      var_name: freeze_thaw_cycles
-    parameters:
-      freq: YS
-  freeze_thaw_cycles_seasonal:
-    base: dlyfrzthw
-    cf_attrs:
-      long_name: seasonal number of freeze-thaw cycles
-      var_name: freeze_thaw_cycles
-    parameters:
-      freq: QS-DEC
-  freeze_thaw_cycles_monthly:
-    base: dlyfrzthw
-    cf_attrs:
-      long_name: monthly number of freeze-thaw cycles
-      var_name: freeze_thaw_cycles
-    parameters:
-      freq: MS
-#  frost_free_season: # NEW, NEW, NEW
-#    base: ResamplingIndicator
-#    compute: frost_free_season
-#    cf_attrs:
-#      - var_name: frost_free_season_start
-#        long_name: "Day after the last day of minimum daily temperature below a threshold of {thresh} before {mid_date}"
-#      - var_name: frost_free_season_end
-#        long_name: "Day before the first day with minimum temperature below {thresh} after {mid_date}"
-#      - var_name: frost_free_seasonend_length
-#        long_name: "Number of days between the day after the last day of minimum daily temperature below a threshold of {thresh} before {mid_date}
-#        and the day before the first day with minimum temperature below {thresh} after {mid_date}."
-#        standard_name: days_with_air_temperature_above_threshold
-#    parameters:
-#      thresh: 0 degC
-#      mid_date: 08-01
-#      freq: YS
-  no_thaw_days_annual: # NEW
-    base: tx_days_below
-    cf_attrs:
-      var_name: tx_days_below_0
-    parameters:
-      thresh: 0 degC
-      freq: YS
-  no_thaw_days_seasonal: # NEW
-    base: tx_days_below
-    cf_attrs:
-      var_name: tx_days_below_0
-    parameters:
-      thresh: 0 degC
-      freq: QS-DEC
-  no_thaw_days_monthly: # NEW
-    base: tx_days_below
-    cf_attrs:
-      var_name: tx_days_below_0
-    parameters:
-      thresh: 0 degC
-      freq: MS
+# # ---------------------------- Agro-climatic Indicators -------------------------------#
+#   growing_degree_days_gt_5_annual:   # modified from base 4! NEW
+#     base: growing_degree_days
+#     cf_attrs:
+#       long_name: annual growing degree days with a threshold of 5 ˚C
+#       var_name: growing_degree_days_gt_5
+#     parameters:
+#       thresh: 5 degC
+#       freq: YS
+# #  freezing_degree_days_lt_0_annual:
+# #    base: freezing_degree_days
+# #    cf_attrs:
+# #      long_name: annual freezing degree days with a threshold of 0 ˚C
+# #      var_name: freezing_degree_days_lt_0
+# #    parameters:
+# #      thresh: 0 degC
+# #      freq: YS
+#   freezing_degree_days_lt_0_start_july:  # NEW
+#     base: freezing_degree_days
+#     cf_attrs:
+#       long_name: annual freezing degree days with a threshold of 0 ˚C starting on July 1st
+#       var_name: freezing_degree_days_lt_0
+#     parameters:
+#       thresh: 0 degC
+#       freq: YS-JUL
+#   thawing_degree_days_gt_0: # NEW
+#     base: thawing_degree_days
+#     cf_attrs:
+#       long_name: annual degree days above a threshold of 0 ˚C
+#       var_name: degree_days_above_0
+#     parameters:
+#       thresh: 0 degC
+#       freq: YS
+#   freeze_thaw_cycles_annual:
+#     base: dlyfrzthw
+#     cf_attrs:
+#       long_name: annual number of freeze-thaw cycles
+#       var_name: freeze_thaw_cycles
+#     parameters:
+#       freq: YS
+#   freeze_thaw_cycles_seasonal:
+#     base: dlyfrzthw
+#     cf_attrs:
+#       long_name: seasonal number of freeze-thaw cycles
+#       var_name: freeze_thaw_cycles
+#     parameters:
+#       freq: QS-DEC
+#   freeze_thaw_cycles_monthly:
+#     base: dlyfrzthw
+#     cf_attrs:
+#       long_name: monthly number of freeze-thaw cycles
+#       var_name: freeze_thaw_cycles
+#     parameters:
+#       freq: MS
+# #  frost_free_season: # NEW, NEW, NEW
+# #    base: ResamplingIndicator
+# #    compute: frost_free_season
+# #    cf_attrs:
+# #      - var_name: frost_free_season_start
+# #        long_name: "Day after the last day of minimum daily temperature below a threshold of {thresh} before {mid_date}"
+# #      - var_name: frost_free_season_end
+# #        long_name: "Day before the first day with minimum temperature below {thresh} after {mid_date}"
+# #      - var_name: frost_free_seasonend_length
+# #        long_name: "Number of days between the day after the last day of minimum daily temperature below a threshold of {thresh} before {mid_date}
+# #        and the day before the first day with minimum temperature below {thresh} after {mid_date}."
+# #        standard_name: days_with_air_temperature_above_threshold
+# #    parameters:
+# #      thresh: 0 degC
+# #      mid_date: 08-01
+# #      freq: YS
+#   no_thaw_days_annual: # NEW
+#     base: tx_days_below
+#     cf_attrs:
+#       var_name: tx_days_below_0
+#     parameters:
+#       thresh: 0 degC
+#       freq: YS
+#   no_thaw_days_seasonal: # NEW
+#     base: tx_days_below
+#     cf_attrs:
+#       var_name: tx_days_below_0
+#     parameters:
+#       thresh: 0 degC
+#       freq: QS-DEC
+#   no_thaw_days_monthly: # NEW
+#     base: tx_days_below
+#     cf_attrs:
+#       var_name: tx_days_below_0
+#     parameters:
+#       thresh: 0 degC
+#       freq: MS
 
-# ----------------------------- Socio-Economic Indicators ---------------------------------#
-  heating_degree_days_lt_15_start_july_annual: # NEW
-    base: heating_degree_days
-    cf_attrs:
-      var_name: heating_degree_days_lt_15 #degree_days_below_15
-    parameters:
-      thresh: 15 degC
-      freq: YS-JUL
-  heating_degree_days_lt_15_seasonal: # NEW
-    base: heating_degree_days
-    cf_attrs:
-      var_name: heating_degree_days_lt_15 #degree_days_below_15
-    parameters:
-      thresh: 15 degC
-      freq: QS-DEC
-  heating_degree_days_lt_15_monthly: # NEW
-    base: heating_degree_days
-    cf_attrs:
-      var_name: heating_degree_days_lt_15 #degree_days_below_15
-    parameters:
-      thresh: 15 degC
-      freq: MS
-  cooling_degree_days_gt_18_annual: # NEW
-    base: cooling_degree_days
-    cf_attrs:
-      var_name: cooling_degree_days_gt_18 #degree_days_above_18
-    parameters:
-      thresh: 18 degC
-      freq: YS
-  cooling_degree_days_gt_18_seasonal: # NEW
-    base: cooling_degree_days
-    cf_attrs:
-      var_name:  cooling_degree_days_gt_18 #degree_days_above_18
-    parameters:
-      thresh: 18 degC
-      freq: QS-DEC
-  cooling_degree_days_gt_18_monthly: # NEW
-    base: cooling_degree_days
-    cf_attrs:
-      var_name:  cooling_degree_days_gt_18 #degree_days_above_18
-    parameters:
-      thresh: 18 degC
-      freq: MS
+# # ----------------------------- Socio-Economic Indicators ---------------------------------#
+#   heating_degree_days_lt_15_start_july_annual: # NEW
+#     base: heating_degree_days
+#     cf_attrs:
+#       var_name: heating_degree_days_lt_15 #degree_days_below_15
+#     parameters:
+#       thresh: 15 degC
+#       freq: YS-JUL
+#   heating_degree_days_lt_15_seasonal: # NEW
+#     base: heating_degree_days
+#     cf_attrs:
+#       var_name: heating_degree_days_lt_15 #degree_days_below_15
+#     parameters:
+#       thresh: 15 degC
+#       freq: QS-DEC
+#   heating_degree_days_lt_15_monthly: # NEW
+#     base: heating_degree_days
+#     cf_attrs:
+#       var_name: heating_degree_days_lt_15 #degree_days_below_15
+#     parameters:
+#       thresh: 15 degC
+#       freq: MS
+#   cooling_degree_days_gt_18_annual: # NEW
+#     base: cooling_degree_days
+#     cf_attrs:
+#       var_name: cooling_degree_days_gt_18 #degree_days_above_18
+#     parameters:
+#       thresh: 18 degC
+#       freq: YS
+#   cooling_degree_days_gt_18_seasonal: # NEW
+#     base: cooling_degree_days
+#     cf_attrs:
+#       var_name:  cooling_degree_days_gt_18 #degree_days_above_18
+#     parameters:
+#       thresh: 18 degC
+#       freq: QS-DEC
+#   cooling_degree_days_gt_18_monthly: # NEW
+#     base: cooling_degree_days
+#     cf_attrs:
+#       var_name:  cooling_degree_days_gt_18 #degree_days_above_18
+#     parameters:
+#       thresh: 18 degC
+#       freq: MS
 
 
-# --------------------------------- Precipitation ------------------------------------#
-  pr_mean_annual:
-    base: prcpavg
-    src_freq: null
-    missing: skip
-    cf_attrs:
-      long_name: annual mean of daily precipitation
-      var_name: pr_mean
-    parameters:
-      freq: YS
-  pr_mean_seasonal:
-    base: prcpavg
-    src_freq: null
-    missing: skip
-    cf_attrs:
-      long_name: seasonal mean of daily precipitation
-      var_name: pr_mean
-    parameters:
-      freq: QS-DEC
-  pr_mean_monthly:
-    base: prcpavg
-    src_freq: null
-    missing: skip
-    cf_attrs:
-      long_name: monthly mean of daily precipitation
-      var_name: pr_mean
-    parameters:
-      freq: MS
+# # --------------------------------- Precipitation ------------------------------------#
+#   pr_mean_annual:
+#     base: prcpavg
+#     src_freq: null
+#     missing: skip
+#     cf_attrs:
+#       long_name: annual mean of daily precipitation
+#       var_name: pr_mean
+#     parameters:
+#       freq: YS
+#   pr_mean_seasonal:
+#     base: prcpavg
+#     src_freq: null
+#     missing: skip
+#     cf_attrs:
+#       long_name: seasonal mean of daily precipitation
+#       var_name: pr_mean
+#     parameters:
+#       freq: QS-DEC
+#   pr_mean_monthly:
+#     base: prcpavg
+#     src_freq: null
+#     missing: skip
+#     cf_attrs:
+#       long_name: monthly mean of daily precipitation
+#       var_name: pr_mean
+#     parameters:
+#       freq: MS
 
-# ---------------------- Standard Deviation Precip Intra -------------------------#
-  pr_std_annual:
-    base: stats
-    src_freq: null
-    missing: skip
-    input:
-      da: pr
-    cf_attrs:
-#      units: mm d-1
-      long_name: annual standard deviation of daily precipitation
-      var_name: pr_std
-    parameters:
-      op: std
-      freq: YS
-  pr_std_seasonal:
-    base: stats
-    src_freq: null
-    missing: skip
-    input:
-      da: pr
-    cf_attrs:
-#      units: mm d-1
-      long_name: seasonal standard deviation of daily precipitation
-      var_name: pr_std
-    parameters:
-      op: std
-      freq: QS-DEC
-  pr_std_monthly:
-    base: stats
-    src_freq: null
-    missing: skip
-    input:
-      da: pr
-    cf_attrs:
-#      units: mm d-1
-      long_name: monthly standard deviation of daily precipitation
-      var_name: pr_std
-    parameters:
-      op: std
-      freq: MS
+# # ---------------------- Standard Deviation Precip Intra -------------------------#
+#   pr_std_annual:
+#     base: stats
+#     src_freq: null
+#     missing: skip
+#     input:
+#       da: pr
+#     cf_attrs:
+# #      units: mm d-1
+#       long_name: annual standard deviation of daily precipitation
+#       var_name: pr_std
+#     parameters:
+#       op: std
+#       freq: YS
+#   pr_std_seasonal:
+#     base: stats
+#     src_freq: null
+#     missing: skip
+#     input:
+#       da: pr
+#     cf_attrs:
+# #      units: mm d-1
+#       long_name: seasonal standard deviation of daily precipitation
+#       var_name: pr_std
+#     parameters:
+#       op: std
+#       freq: QS-DEC
+#   pr_std_monthly:
+#     base: stats
+#     src_freq: null
+#     missing: skip
+#     input:
+#       da: pr
+#     cf_attrs:
+# #      units: mm d-1
+#       long_name: monthly standard deviation of daily precipitation
+#       var_name: pr_std
+#     parameters:
+#       op: std
+#       freq: MS
 
-# ----------------------------- Extreme Precipitation Indicators ---------------------------------#
-  RX1day_annual:
-    base: max_n_day_precipitation_amount
-    cf_attrs:
-      long_name: annual maximum 1-day precipitation amount
-      var_name: RX1day
-    parameters:
-        freq: YS
-        window: 1
-  RX1day_seasonal:
-    base: max_n_day_precipitation_amount
-    src_freq: null
-    missing: skip
-    cf_attrs:
-      long_name: seasonal maximum 1-day precipitation amount
-      var_name: RX1day
-    parameters:
-        freq: QS-DEC
-        window: 1
-  RX1day_monthly:
-    base: max_n_day_precipitation_amount
-    cf_attrs:
-      long_name: monthly maximum 1-day precipitation amount
-      var_name: RX1day
-    parameters:
-        freq: MS
-        window: 1
-  RX5day_annual:
-    base: max_n_day_precipitation_amount
-    cf_attrs:
-      long_name: annual maximum 5-day precipitation amount
-      var_name: RX5day
-    parameters:
-      freq: YS
-      window: 5
-  RX5day_seasonal:
-    base: max_n_day_precipitation_amount
-    cf_attrs:
-      long_name: seasonal maximum 5-day precipitation amount
-      var_name: RX5day
-    parameters:
-      freq: QS-DEC
-      window: 5
-  RX5day_monthly:
-    base: max_n_day_precipitation_amount
-    cf_attrs:
-      long_name: monthly maximum 5-day precipitation amount
-      var_name: RX5day
-    parameters:
-      freq: MS
-      window: 5
-  R95pTOT_annual:
-    base: fraction_over_precip_thresh
-    input:
-      pr_per: pr_per95
-    cf_attrs:
-      long_name: Fraction of annual precipitation due to wet days with daily precipitation above the 95th percentile.
-      var_name: R95pTOT
-      units: '1'
-    parameters:
-      freq: YS
-  R95pTOT_seasonal:
-    base: fraction_over_precip_thresh
-    input:
-      pr_per: pr_per95
-    cf_attrs:
-      long_name: Fraction of seasonal precipitation due to wet days with daily precipitation above the 95th percentile.
-      var_name: R95pTOT
-      units: '1'
-    parameters:
-      freq: QS-DEC
-  R95pTOT_monthly:
-    base: fraction_over_precip_thresh
-    input:
-      pr_per: pr_per95
-    cf_attrs:
-      long_name: Fraction of monthly precipitation due to wet days with daily precipitation above the 95th percentile.
-      var_name: R95pTOT
-      units: '1'
-    parameters:
-      freq: MS
-  R99pTOT_annual:
-    base: fraction_over_precip_thresh
-    input:
-      pr_per: pr_per99
-    cf_attrs:
-      long_name: Fraction of annual precipitation due to very wet days with daily precipitation above the 99th percentile.
-      var_name: R99pTOT
-      units: '1'
-    parameters:
-      freq: YS
-  R99pTOT_seasonal:
-    base: fraction_over_precip_thresh
-    input:
-      pr_per: pr_per99
-    cf_attrs:
-      long_name: Fraction of seasonal precipitation due to very wet days with daily precipitation above the 99th percentile.
-      var_name: R99pTOT
-      units: '1'
-    parameters:
-      freq: QS-DEC
-  R99pTOT_monthly:
-    base: fraction_over_precip_thresh
-    input:
-      pr_per: pr_per99
-    cf_attrs:
-      long_name: Fraction of monthly precipitation due to very wet days with daily precipitation above the 99th percentile.
-      var_name: R99pTOT
-      units: '1'
-    parameters:
-      freq: MS
+# # ----------------------------- Extreme Precipitation Indicators ---------------------------------#
+#   RX1day_annual:
+#     base: max_n_day_precipitation_amount
+#     cf_attrs:
+#       long_name: annual maximum 1-day precipitation amount
+#       var_name: RX1day
+#     parameters:
+#         freq: YS
+#         window: 1
+#   RX1day_seasonal:
+#     base: max_n_day_precipitation_amount
+#     src_freq: null
+#     missing: skip
+#     cf_attrs:
+#       long_name: seasonal maximum 1-day precipitation amount
+#       var_name: RX1day
+#     parameters:
+#         freq: QS-DEC
+#         window: 1
+#   RX1day_monthly:
+#     base: max_n_day_precipitation_amount
+#     cf_attrs:
+#       long_name: monthly maximum 1-day precipitation amount
+#       var_name: RX1day
+#     parameters:
+#         freq: MS
+#         window: 1
+#   RX5day_annual:
+#     base: max_n_day_precipitation_amount
+#     cf_attrs:
+#       long_name: annual maximum 5-day precipitation amount
+#       var_name: RX5day
+#     parameters:
+#       freq: YS
+#       window: 5
+#   RX5day_seasonal:
+#     base: max_n_day_precipitation_amount
+#     cf_attrs:
+#       long_name: seasonal maximum 5-day precipitation amount
+#       var_name: RX5day
+#     parameters:
+#       freq: QS-DEC
+#       window: 5
+#   RX5day_monthly:
+#     base: max_n_day_precipitation_amount
+#     cf_attrs:
+#       long_name: monthly maximum 5-day precipitation amount
+#       var_name: RX5day
+#     parameters:
+#       freq: MS
+#       window: 5
+#   R95pTOT_annual:
+#     base: fraction_over_precip_thresh
+#     input:
+#       pr_per: pr_per95
+#     cf_attrs:
+#       long_name: Fraction of annual precipitation due to wet days with daily precipitation above the 95th percentile.
+#       var_name: R95pTOT
+#       units: '1'
+#     parameters:
+#       freq: YS
+#   R95pTOT_seasonal:
+#     base: fraction_over_precip_thresh
+#     input:
+#       pr_per: pr_per95
+#     cf_attrs:
+#       long_name: Fraction of seasonal precipitation due to wet days with daily precipitation above the 95th percentile.
+#       var_name: R95pTOT
+#       units: '1'
+#     parameters:
+#       freq: QS-DEC
+#   R95pTOT_monthly:
+#     base: fraction_over_precip_thresh
+#     input:
+#       pr_per: pr_per95
+#     cf_attrs:
+#       long_name: Fraction of monthly precipitation due to wet days with daily precipitation above the 95th percentile.
+#       var_name: R95pTOT
+#       units: '1'
+#     parameters:
+#       freq: MS
+#   R99pTOT_annual:
+#     base: fraction_over_precip_thresh
+#     input:
+#       pr_per: pr_per99
+#     cf_attrs:
+#       long_name: Fraction of annual precipitation due to very wet days with daily precipitation above the 99th percentile.
+#       var_name: R99pTOT
+#       units: '1'
+#     parameters:
+#       freq: YS
+#   R99pTOT_seasonal:
+#     base: fraction_over_precip_thresh
+#     input:
+#       pr_per: pr_per99
+#     cf_attrs:
+#       long_name: Fraction of seasonal precipitation due to very wet days with daily precipitation above the 99th percentile.
+#       var_name: R99pTOT
+#       units: '1'
+#     parameters:
+#       freq: QS-DEC
+#   R99pTOT_monthly:
+#     base: fraction_over_precip_thresh
+#     input:
+#       pr_per: pr_per99
+#     cf_attrs:
+#       long_name: Fraction of monthly precipitation due to very wet days with daily precipitation above the 99th percentile.
+#       var_name: R99pTOT
+#       units: '1'
+#     parameters:
+#       freq: MS
 
 
 

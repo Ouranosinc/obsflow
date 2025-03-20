@@ -91,6 +91,7 @@ if __name__ == "__main__":
                                 # won't be needing this when data is completely cleaned
                                 ds["time"] = ds.time.dt.floor(type_dict["floor"])
 
+                            # COMMENT: très utile pour l'ajustement de biais, mais pas sur que c'est nécessaire ici.
                             # drop nans and stack lat/lon in 1d loc (makes code faster)
                             if type_dict.get("stack_drop_nans", False):
                                 ds = xs.utils.stack_drop_nans(
@@ -99,23 +100,21 @@ if __name__ == "__main__":
                                     .isel(time=0, drop=True)
                                     .notnull(),
                                 )
+                            
                             # update 'cat:type' attribute (to separate station-pr from station-tas)
                             ds.attrs["cat:type"] = cur["type"]
                             ds.attrs["cat:id"] = cur['id']
 
                             # save to zarr
                             path = CONFIG["paths"]["task"].format(**cur)
-                            # try:
-                            #     xs.save_to_netcdf(ds=ds, filename=path.replace('zarr', 'nc'),
-                            #                       rechunk=type_dict["save"]["rechunk"],
-                            #                       # for some reason h5netcdf doesn't write correct files here
-                            #                       netcdf_kwargs={'engine': 'netcdf4'})
-                            # except:
-                            #     print(f'Couln\'t write file: {path.replace("zarr", "nc")}')
+
                             xs.save_to_zarr(ds=ds, filename=path, **type_dict["save"])
                             pcat.update_from_ds(ds=ds, path=path)
+                            # COMMENT: suggestion
+                            # xs.save_and_update(ds=ds, pcat=pcat, path=path, save_kwargs=type_dict["save"])
 
     # --- REGRID ---
+    # COMMENT: pour le stage, je pense qu'on ne devrait pas regriller
     if "regrid" in CONFIG["tasks"]:
         # get input and iter over datasets
         input_dict = pcat.search(**CONFIG["regrid"]["inputs"]).to_dataset_dict(**tdd)
@@ -147,6 +146,7 @@ if __name__ == "__main__":
                 pcat.update_from_ds(ds=ds_regrid, path=path, info_dict=cur)
 
     # --- CLEAN UP ---
+    # COMMENT: pas sur que cette section soit nécessaire pour le stage (pas unsatck à faire, les changements d'unités( si nécessaire) peuvent être fait à l'étape extract)
     if "cleanup" in CONFIG["tasks"]:
         # get all datasets to clean up and iter
         # cu_cats = xs.search_data_catalogs(**CONFIG["cleanup"]["search_data_catalogs"])
@@ -155,7 +155,8 @@ if __name__ == "__main__":
         # iter over datasets
         for ds_id, ds_input in input_dict.items():
             cur = {
-                "id": '.'.join(ds_id.split('.')[:2]),
+               # "id": '.'.join(ds_id.split('.')[:2]), # COMMENT: petit bug
+                "id": ds_id.split('.')[0],
                 "xrfreq": ds_input.attrs["cat:xrfreq"],
                 "processing_level": "extracted-cleaned",
             }
@@ -206,6 +207,7 @@ if __name__ == "__main__":
                                             .quantile(0.99, dim='time', keep_attrs=True))
 
                 # compute indicators
+                # COMMENT: des fois, il peut être intéressant d'écrire chacune des variables dans son propre fichier, ça permet d'en rajouter plus facilement.
                 dict_indicator = xs.compute_indicators(
                     ds=ds_input,
                     indicators=xs.indicators.select_inds_for_avail_vars(ds_input,
@@ -225,6 +227,7 @@ if __name__ == "__main__":
                         xs.save_to_zarr(ds_ind, path_ind, **CONFIG["indicators"]["save"])
                         pcat.update_from_ds(ds=ds_ind, path=path_ind)
 
+    # COMMENT: not sure we need this pour le stage
     # --- CLIMATOLOGIES ---
     if "climatologies" in CONFIG["tasks"]:
         # iterate over inputs
@@ -350,6 +353,7 @@ if __name__ == "__main__":
                     xs.save_to_zarr(ds_clim, path, **CONFIG["aggregate"]["save"])
                     pcat.update_from_ds(ds=ds_clim, path=path)
 
+    # COMMENT: je pense que les graphiques seront différents de ceux-ci pour la stage et je commencerais avec des graphiques dans un jupyetr notebook en mode plus exploratoire
     # --- PLOTTING ---
     if "plotting" in CONFIG["tasks"]:
         # get input and iter
@@ -508,6 +512,7 @@ if __name__ == "__main__":
                             # let's get to work plotting -------------------------------------------------------------
                             # do the facetgrid plot
                             with xr.set_options(keep_attrs=True):
+                                # COMMENT: this needs a newish figanos
                                 fax = fg.gridmap(
                                     data=da_grid.sel(sel_kwargs) * scale_factor,
                                     plot_kw=plot_kwargs_grid,
@@ -730,3 +735,5 @@ if __name__ == "__main__":
         subject="ObsFlow - Message",
         msg="Congratulations! All tasks of the workflow were completed!",
     )
+
+# COMMENT: peut-être un peu intimidant pour commencer, peut-être que je lui donnerais une version épuré sur laquelle il pourra construire.

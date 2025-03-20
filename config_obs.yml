@@ -11,11 +11,11 @@
 #  (by modifying extract:simulation:search_data_catalogs:other_search_criteria:)
 # to make sure all tasks work properly before launching it for all simulations.
 tasks:
-  #- extract # Extract station data, (gridded observation data), and reanalysis data.
-  #- regrid # Regrid the simulation onto a common grid (ERA5-Land).
-  #- cleanup # Handle different units in datasets.
-  #- indicators # Compute xclim indicators on the datasets.
-  #- climatologies # Compute climatological operations for the indicators (mean, std, trend).
+  # - extract # Extract station data, (gridded observation data), and reanalysis data.
+  # - regrid # Regrid the simulation onto a common grid (ERA5-Land).
+  # - cleanup # Handle different units in datasets.
+  # - indicators # Compute xclim indicators on the datasets.
+  # - climatologies # Compute climatological operations for the indicators (mean, std, trend).
   - plotting # Make plots of results from climatological operations for annual, seasonal, and monthly data.
   #- "ensembles" # Compute/compare different datasets and assess uncertainties in historical data (ToDo)
 
@@ -45,16 +45,18 @@ extract:  # ------------------------------------- Extraction -------------------
           - ERA5-Land
           - RDRS
     extract_dataset:
-      region: &region
+    # COMMENT: why is it not same region for all data ?
+      region: &region 
         name: Quebec
         method: shape
         tile_buffer: 1.0 #1.5
+        # COMMENT:  was this warning checked ? /usr/local/DEV/mambaforge/envs/xscen-0.10/lib/python3.12/site-packages/clisops/core/subset.py:1031: UserWarning: Geometry is in a geographic CRS. Results from 'buffer' are likely incorrect. Use 'GeoSeries.to_crs()' to re-project geometries to a projected CRS before this operation.
         shape: /exec/braun/data/obsflow/gis/region_admin.zip!region_admin.shp # shape:shape to create a dictionary (deprecated)
         # shape: /scen3/braun/data/obs_synthese23/gis/lpr_000b16a_e_QC_simpl1.zip!lpr_000b16a_e_QC_simpl1.shp # shape:shape to create a dictionary (deprecated)
     stack_drop_nans: &stack
       False
     save:
-      mode: o
+      mode: o # COMMENT: peux aller dans section général io
       encoding:
         tas: &f32
           dtype: float32
@@ -67,6 +69,8 @@ extract:  # ------------------------------------- Extraction -------------------
         Y: 30
 
 # station observations AHCCD
+# COMMENT: why are station-tas and station-pr separated ? what about multivariate indicators ?
+# I know that you lose a bit of info with xarray_combine_by_coords_kwargs={'compat':'override'}, but not sure it matters
   station-tas:  # ------------------------------------- Station Temperature -------------------------------------
     dask:
       n_workers: 1
@@ -284,14 +288,15 @@ aggregate:  # ------------------------------------- Climatological Operations --
     threads_per_worker: 4
     memory_limit: "15GB"
   periods:
-    - ['1951', '1980']
-    - ['1961', '1990']
-    - ['1961', '2020']
-    - ['1971', '2000']
-    - ['1981', '2010']
-    - ['1981', '2018']
-    - ['1988', '2017']
-    - ['1991', '2018']
+    # COMMENT: removed just for tests
+    # - ['1951', '1980']
+    # - ['1961', '1990']
+    # - ['1961', '2020']
+    # - ['1971', '2000']
+    # - ['1981', '2010']
+    # - ['1981', '2018']
+    # - ['1988', '2017']
+    # - ['1991', '2018']
     - ['1991', '2020']
     # - ['1980', '1985']]
   input:
@@ -366,6 +371,9 @@ plotting:  # ------------------------------------- Plotting --------------------
     processing_level: climatology
   # List of indicators to plot
   indicators:
+   #- tg_mean_clim_linregress
+   - tg_mean_clim_mean
+   #- tg_mean_clim_std
 #    - R95pTOT_clim_linregress
 #    - R95pTOT_clim_mean
 #    - R95pTOT_clim_std
@@ -378,23 +386,23 @@ plotting:  # ------------------------------------- Plotting --------------------
 #    - RX5day_clim_linregress
 #    - RX5day_clim_mean
 #    - RX5day_clim_std
-    - cold_spell_frequency_class1_clim_linregress
-    - cold_spell_frequency_class1_clim_mean
-    - cold_spell_frequency_class2_clim_linregress
-    - cold_spell_frequency_class2_clim_mean
-    - cold_spell_frequency_class2_clim_std
-    - cold_spell_frequency_class3_clim_linregress
-    - cold_spell_frequency_class3_clim_mean
-    - cold_spell_frequency_class3_clim_std
-    - cold_spell_total_length_class1_clim_linregress
-    - cold_spell_total_length_class1_clim_mean
-    - cold_spell_total_length_class1_clim_std
-    - cold_spell_total_length_class2_clim_linregress
-    - cold_spell_total_length_class2_clim_mean
-    - cold_spell_total_length_class2_clim_std
-    - cold_spell_total_length_class3_clim_linregress
-    - cold_spell_total_length_class3_clim_mean
-    - cold_spell_total_length_class3_clim_std
+  #  - cold_spell_frequency_class1_clim_linregress
+  # - cold_spell_frequency_class1_clim_mean
+  # - cold_spell_frequency_class2_clim_linregress
+  # - cold_spell_frequency_class2_clim_mean
+  # - cold_spell_frequency_class2_clim_std
+  # - cold_spell_frequency_class3_clim_linregress
+  # - cold_spell_frequency_class3_clim_mean
+  # - cold_spell_frequency_class3_clim_std
+  # - cold_spell_total_length_class1_clim_linregress
+  # - cold_spell_total_length_class1_clim_mean
+  # - cold_spell_total_length_class1_clim_std
+  # - cold_spell_total_length_class2_clim_linregress
+  # - cold_spell_total_length_class2_clim_mean
+  # - cold_spell_total_length_class2_clim_std
+  # - cold_spell_total_length_class3_clim_linregress
+  # - cold_spell_total_length_class3_clim_mean
+  # - cold_spell_total_length_class3_clim_std
 #    - cooling_degree_days_gt_18_clim_linregress
 #    - cooling_degree_days_gt_18_clim_mean
 #    - cooling_degree_days_gt_18_clim_std
@@ -1555,7 +1563,7 @@ logging: # general logging args
       class : logging.StreamHandler
       formatter: default
       level : INFO
-    file:
+    file: # COMMENT: if you really want a file, I suggest renaming it with id. But, I found not that usefule finalement
       class: logging.FileHandler
       formatter: default
       level : DEBUG
