@@ -9,8 +9,21 @@ Extract, analyze and visualize historical climate data from
 - RDRSv2
 - ERA5-Land
 
-# TODO
-Refine this description and write code for basically everything except data extraction.
+# Instructions
+
+1. Create env
+``` 
+mamba env create -f environment.yml
+```
+
+2. Get paths_obs.yml from a colleague and modify it with your paths.
+
+3. Modify config_obs.yml for the data you are interested in .
+
+4. Run workflow
+```
+python workflow_obs.py
+```
 
 
 

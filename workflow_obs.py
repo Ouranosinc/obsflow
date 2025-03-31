@@ -78,6 +78,9 @@ if __name__ == "__main__":
                         ds.attrs["cat:type"] = source_type
                         ds.attrs["cat:id"] = f'{ds_id}_{source_type}'
 
+                        # FIXME: not needed when xscen will be changed. see issue #560
+                        ds=ds.set_coords('crs')
+
                         # save to zarr # format(*cur) is now done in the fonction based on cat attrs
                         xs.save_and_update(ds=ds, pcat=pcat, path=CONFIG['paths']['task'], save_kwargs=type_dict["save"])
 
@@ -120,6 +123,7 @@ if __name__ == "__main__":
                     ):
                         logger.info(f"Computing {outfreq} {outnames}")
                         
+                        #TODO: add missing check
                         _, ds_ind = xs.compute_indicators(
                             ds=ds_input,
                             indicators=[(name, ind)],
@@ -129,7 +133,6 @@ if __name__ == "__main__":
                             path=CONFIG['paths']['task'],save_kwargs=CONFIG["indicators"]["save"])
 
 
-    # not sure we need this pour le stage ?
     # --- CLIMATOLOGIES ---
     if "climatologies" in CONFIG["tasks"]:
         # iterate over inputs
@@ -154,6 +157,7 @@ if __name__ == "__main__":
 
                             # Calculate climatological mean --------------------------------
                             logger.info(f"- Computing climatological mean for {key_input} for period {period}")
+                            #TODO: add missing check
                             ds_mean = xs.aggregate.climatological_op(
                                 ds=ds_input,
                                 **CONFIG["aggregate"]["climatological_mean"],

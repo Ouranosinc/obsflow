@@ -38,11 +38,14 @@ extract:  # ------------------------------------- Extraction -------------------
         source:
           - ERA5-Land
           - RDRS
-    extract_dataset:
-      region: &region 
+    extract_dataset: &extract
+      region: 
         name: Quebec
         method: shape
-        buffer: 0.03
+        #buffer: 0.03
+      periods: 
+        - 1980
+        - 2025
     save:
       encoding:
         tas: &f32
@@ -71,8 +74,7 @@ extract:  # ------------------------------------- Extraction -------------------
         tas: D
       other_search_criteria:
         source: AHCCD
-    extract_dataset:
-      region: *region
+    extract_dataset: *extract
     xarray_open_kwargs:
       chunks:
         station: 1
@@ -95,8 +97,7 @@ extract:  # ------------------------------------- Extraction -------------------
         pr: D
       other_search_criteria:
         source: AHCCD
-    extract_dataset:
-      region: *region
+    extract_dataset: *extract
     save:
       rechunk:
         time: -1
