@@ -38,6 +38,7 @@ extract:  # ------------------------------------- Extraction -------------------
         source:
           - ERA5-Land
           - RDRS
+          - CaSR
     extract_dataset: &extract
       region: 
         name: Quebec
