@@ -19,35 +19,21 @@ indicators:
   tg_mean_annual:
     base: tg_mean
     missing: skip #TODO: mayeb do something clever here
-    # cf_attrs: # i dont think this is necessary
-    #   units: degC
-    #   long_name: annual mean of daily mean temperature
-    #   var_name: tg_mean
     parameters:
       freq: YS
   tg_mean_seasonal:
     base: tg_mean
     missing: skip
-    # cf_attrs:
-    #   units: degC
-    #   long_name: seasonal mean of daily mean temperature
-    #   var_name: tg_mean
     parameters:
       freq: QS-DEC
 # # --------------------------------- Precipitation ------------------------------------#
   pr_mean_annual:
     base: prcpavg
     missing: skip
-    # cf_attrs:
-    #   long_name: annual mean of daily precipitation
-    #   var_name: pr_mean
     parameters:
       freq: YS
   pr_mean_seasonal:
     base: prcpavg
     missing: skip
-    # cf_attrs:
-    #   long_name: seasonal mean of daily precipitation
-    #   var_name: pr_mean
     parameters:
       freq: QS-DEC
