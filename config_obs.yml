@@ -39,6 +39,8 @@ extract:  # ------------------------------------- Extraction -------------------
           - ERA5-Land
           - RDRS
           - CaSR
+          - EMDNA
+          - PCICBlend
     extract_dataset: &extract
       region: 
         name: Quebec
@@ -126,7 +128,8 @@ aggregate:  # ------------------------------------- Climatological Operations --
     threads_per_worker: 4
     memory_limit: "15GB"
   periods:
-    - ['1988', '2017']
+    - ['1981', '2010']
+    - ['1991', '2020']
   input:
     processing_level: indicators
   climatological_mean: 
