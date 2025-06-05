@@ -18,7 +18,6 @@ indicators:
 #-------------------------------- Temperature ------------------------------------#
   tg_mean_annual:
     base: tg_mean
-    #src_freq: null  # i dont think this is necessary
     missing: skip #TODO: mayeb do something clever here
     # cf_attrs: # i dont think this is necessary
     #   units: degC
@@ -28,7 +27,6 @@ indicators:
       freq: YS
   tg_mean_seasonal:
     base: tg_mean
-    #src_freq: null
     missing: skip
     # cf_attrs:
     #   units: degC
@@ -39,7 +37,6 @@ indicators:
 # # --------------------------------- Precipitation ------------------------------------#
   pr_mean_annual:
     base: prcpavg
-    #src_freq: null
     missing: skip
     # cf_attrs:
     #   long_name: annual mean of daily precipitation
@@ -48,7 +45,6 @@ indicators:
       freq: YS
   pr_mean_seasonal:
     base: prcpavg
-    #src_freq: null
     missing: skip
     # cf_attrs:
     #   long_name: seasonal mean of daily precipitation
