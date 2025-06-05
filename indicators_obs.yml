@@ -18,22 +18,18 @@ indicators:
 #-------------------------------- Temperature ------------------------------------#
   tg_mean_annual:
     base: tg_mean
-    missing: skip #TODO: mayeb do something clever here
     parameters:
       freq: YS
   tg_mean_seasonal:
     base: tg_mean
-    missing: skip
     parameters:
       freq: QS-DEC
 # # --------------------------------- Precipitation ------------------------------------#
   pr_mean_annual:
     base: prcpavg
-    missing: skip
     parameters:
       freq: YS
   pr_mean_seasonal:
     base: prcpavg
-    missing: skip
     parameters:
       freq: QS-DEC
