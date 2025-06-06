@@ -28,7 +28,7 @@ if __name__ == "__main__":
     dskconf.set(**{k: v for k, v in CONFIG["dask"].items() if k != "client"})
 
     # set xclim config to compute indicators on 3H data FixMe: can this be removed?
-    xclim.set_options(data_validation="log", check_missing="wmo")
+    xclim.set_options(data_validation="log", check_missing="skip") #TODO: change check_messing to "wmo" and figure out chunking issues
 
     # set email config
     if "scripting" in CONFIG:
