@@ -12,6 +12,7 @@ from dask.diagnostics import ProgressBar
 import xclim
 import xscen as xs
 from xscen.config import CONFIG
+import xsdba
 
 # Load configuration
 xs.load_config(
@@ -187,7 +188,80 @@ if __name__ == "__main__":
                     print(ds_clim)
                     #TODO: do it by var
                     xs.save_and_update(ds=ds_clim, pcat=pcat,path=CONFIG['paths']['task'])
-   
+
+    # --- STATISTICS ---
+    if "statistics" in CONFIG["tasks"]:
+        for measure_name, processing_levels in CONFIG["statistics"]["measures"].items():
+            measure_func = getattr(xsdba.measures, measure_name)
+            for processing_level, search_param_dicts in processing_levels.items():
+                for search_param_dict in search_param_dicts:
+                    # search_param_dict provides parameters for pcat.search, enabling selection
+                    # of equivalent datasets (e.g., same variable, frequency, etc; but from different sources)
+                    
+                    variable_name = search_param_dict["variable"] # The variable for which we're computing the measure
+
+                    obs_dict = pcat.search(
+                        processing_level=processing_level, # Ensure the statistic is computed within the same processing level
+                        **search_param_dict, # Shared search criteria (e.g., variable, frequency)
+                        **CONFIG["statistics"]["input"]["observation"] # Observation-exclusive search criteria
+                    ).to_dataset_dict()
+
+                    sim_dict = pcat.search(
+                        processing_level=processing_level,
+                        **search_param_dict,
+                        **CONFIG["statistics"]["input"]["simulation"] # Simulation-exclusive search criteria
+                    ).to_dataset_dict()
+
+                    for obs_dataset_id, obs_dataset in obs_dict.items(): # For each observation dataset
+                        for sim_dataset_id, sim_dataset in sim_dict.items(): # For each simulation dataset
+
+                            output_id = f"{measure_name}_{sim_dataset_id}_vs_{obs_dataset_id}" # The id of the output dataset
+                            
+                            if pcat.exists_in_cat(id=output_id, processing_level="statistics"):
+                                logger.info(f"Skipping existing statistics for: {output_id}")
+                                continue
+
+                            with (
+                                Client(**CONFIG["statistics"]["dask"], **daskkws),
+                                xs.measure_time(name=f"statistics {output_id}", logger=logger)
+                            ):
+                                logger.info(f"Computing {measure_name} between {sim_dataset_id} and {obs_dataset_id}")
+
+                                sim_subset = xs.spatial.subset(
+                                    sim_dataset,
+                                    method='gridpoint',
+                                    lat=obs_dataset.lat.values,
+                                    lon=obs_dataset.lon.values
+                                )
+                                
+                                obs_subset = obs_dataset
+
+                                common_time = np.intersect1d(obs_subset['time'], sim_subset['time'])
+                                obs_subset_slice = obs_subset.sel(time=common_time)
+                                sim_subset_slice = sim_subset.sel(time=common_time)
+
+                                da_output = measure_func( # The output data array
+                                    sim=sim_subset_slice[variable_name],
+                                    ref=obs_subset_slice[variable_name]
+                                )
+                                ds_output = da_output.to_dataset(name=f"{variable_name}_{measure_name}") # The output dataset
+                                
+                                ds_output.attrs["cat:id"] = output_id
+                                ds_output.attrs["cat:xrfreq"] = sim_dataset.attrs['cat:xrfreq'] # TODO: should be done automatically?
+                                ds_output.attrs["cat:variable"] = f"{variable_name}_{measure_name}"
+                                ds_output.attrs["cat:processing_level"] = "statistics"
+                                
+                                del ds_output.station.encoding['filters'] # Existing value in encoding's "filters" breaks "save_and_update"
+                                
+                                xs.save_and_update(
+                                    ds=ds_output,
+                                    pcat=pcat,
+                                    path=CONFIG['paths']['task'],
+                                    save_kwargs=CONFIG["statistics"]["save"]
+                                )
+
+
+
 
     xs.send_mail(
         subject="ObsFlow - Message",

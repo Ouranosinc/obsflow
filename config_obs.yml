@@ -15,6 +15,7 @@ tasks:
    - extract # Extract station data, (gridded observation data), and reanalysis data.
    - indicators # Compute xclim indicators on the datasets.
    - climatologies # Compute climatological operations for the indicators (mean, std, trend).
+   - statistics # Compute measures between observations and simulations (as defined in xsdba.measures)
 
 # Task Arguments
 
@@ -143,6 +144,59 @@ aggregate:  # ------------------------------------- Climatological Operations --
   #   - pr_std
   climatological_std: # automatically passed to the function
     op: std
+
+statistics:  # ------------------------------------- Statistics --------------------------------------------------
+  # Defines which statistical metrics to compute using functions from xsdba.measures.
+  dask:
+    n_workers: 8
+    threads_per_worker: 5
+    memory_limit: "8GB"
+  input:
+    observation: # Parameters used to search exclusively for observation data in the catalog.
+      type: ['station-pr', 'station-tas']
+    simulation: # Parameters used to search exclusively for simulation data in the catalog.
+      type: ['reconstruction']
+
+  # Expected "measures" YAML dictionary structure:
+  #   measures:
+  #      MEASURE:
+  #        PROCESSING_LEVEL:
+  #          - variable: VARIABLE1
+  #            OTHER_ATTR: VALUE1
+  #            ...
+  #          - variable: VARIABLE2
+  #            OTHER_ATTR: VALUE2
+  #            ...
+  #          - ...
+  #
+  # MEASURE:          e.g., 'rmse', 'mae', etc.
+  # PROCESSING_LEVEL: e.g., 'indicators', 'climatology'
+  # VARIABLE:         e.g., 'tg_mean_annual', 'pr_mean_seasonal'
+  # OTHER_ATTR:       e.g., 'frequency', 'source'
+  measures:
+    rmse:
+      indicators:
+        - variable: tg_mean_annual
+        - variable: tg_mean_seasonal
+        - variable: pr_mean_annual
+        - variable: pr_mean_seasonal
+  # Example of a more complex input structure:
+  #measures:
+  #  rmse:
+  #    indicators: &annual_variables
+  #      - variable: tg_mean_annual
+  #        frequency: yr # Note: Here, specifying the frequency is redundant since variable names already differentiate them
+  #      - variable: pr_mean_annual
+  #        frequency: yr
+  #    climatology: *annual_variables
+  #  mae:
+  #    climatology:
+  #      - variable: tg_mean_seasonal
+  #        frequency: qtr
+
+  save:
+    rechunk:
+      station: -1
 
 
 
