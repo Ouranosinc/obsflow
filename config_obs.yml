@@ -214,6 +214,10 @@ scripting: # send an email when code fails or succeed
     msg_err: I crashed, something went wrong!
     on_error_only: True
 
+set_options:
+  data_validation: log
+  check_missing: skip
+
 io: 
   save_to_zarr: # passed automatically to all save_to_zarr
     mode: o 
