@@ -171,7 +171,7 @@ performance:  # ------------------------------------- Performance --------------
   #          - ...
   #
   # MEASURE: Which measure we're computing                                   e.g., 'rmse', 'mae', etc.
-  # PROCESSING_LEVEL: The level at which we're computing it                  e.g., 'indicators', 'climatology'
+  # PROCESSING_LEVEL: The level at which we're computing it                  e.g., 'indicators', 'extracted'
   # VARIABLE: Which variables we're computing it for                         e.g., 'tg_mean_annual', 'pr_mean_seasonal'
   # OTHER_ATTR: Other attribute(s) which allow us to select each variable    e.g., 'frequency', 'source'
   #
@@ -194,9 +194,9 @@ performance:  # ------------------------------------- Performance --------------
   #        frequency: yr # Note: Here, specifying the frequency is redundant since variable names already differentiate them
   #      - variable: pr_mean_annual
   #        frequency: yr
-  #    climatology: *annual_variables
+  #    extracted: *annual_variables
   #  mae:
-  #    climatology:
+  #    extracted:
   #      - variable: tg_mean_seasonal
   #        frequency: qtr
 
