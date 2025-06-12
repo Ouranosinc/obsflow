@@ -213,10 +213,7 @@ if __name__ == "__main__":
                     ).to_dataset_dict()
 
                     for obs_dataset_id, obs_dataset in obs_dict.items(): # For each observation dataset
-                        for rec_dataset_id, rec_dataset in rec_dict.items(): # For each reconstruction dataset
-
-                            output_id = f"{measure_name}_{rec_dataset_id}_vs_{obs_dataset_id}" # The id of the output dataset
-                            
+                        for rec_dataset_id, rec_dataset in rec_dict.items(): # For each reconstruction dataset                            
                             if pcat.exists_in_cat(id=output_id, processing_level="performance"):
                                 logger.info(f"Skipping existing performance for: {output_id}")
                                 continue
@@ -250,7 +247,9 @@ if __name__ == "__main__":
                                 ds_output.attrs["cat:xrfreq"] = rec_dataset.attrs['cat:xrfreq'] # TODO: should be done automatically?
                                 ds_output.attrs["cat:variable"] = f"{variable_name}_{measure_name}"
                                 ds_output.attrs["cat:processing_level"] = "performance"
-                                
+                                ds_output.attrs["cat:source"] = rec_dataset.attrs['cat:source']
+                                ds_output.attrs["cat:performance_base"] = obs_dataset.attrs['cat:source']
+
                                 del ds_output.station.encoding['filters'] # Existing value in encoding's "filters" breaks "save_and_update"
                                 
                                 xs.save_and_update(
