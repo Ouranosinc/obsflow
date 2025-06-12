@@ -158,6 +158,7 @@ performance:  # ------------------------------------- Performance --------------
       type: ['reconstruction']
 
   # Expected "measures" YAML dictionary structure:
+  #
   #   measures:
   #      MEASURE:
   #        PROCESSING_LEVEL:
@@ -169,10 +170,15 @@ performance:  # ------------------------------------- Performance --------------
   #            ...
   #          - ...
   #
-  # MEASURE:          e.g., 'rmse', 'mae', etc.
-  # PROCESSING_LEVEL: e.g., 'indicators', 'climatology'
-  # VARIABLE:         e.g., 'tg_mean_annual', 'pr_mean_seasonal'
-  # OTHER_ATTR:       e.g., 'frequency', 'source'
+  # MEASURE: Which measure we're computing                                   e.g., 'rmse', 'mae', etc.
+  # PROCESSING_LEVEL: The level at which we're computing it                  e.g., 'indicators', 'climatology'
+  # VARIABLE: Which variables we're computing it for                         e.g., 'tg_mean_annual', 'pr_mean_seasonal'
+  # OTHER_ATTR: Other attribute(s) which allow us to select each variable    e.g., 'frequency', 'source'
+  #
+  # OTHER_ATTR (other attribute(s)) is used when variable names alone are insufficient to differentiate between variables.
+  # For example, if a variable is computed at multiple frequencies, but the frequency is not reflected in the variable name,
+  # OTHER_ATTR can be used to capture that distinction.
+
   measures:
     rmse:
       indicators:
