@@ -15,7 +15,7 @@ tasks:
    - extract # Extract station data, (gridded observation data), and reanalysis data.
    - indicators # Compute xclim indicators on the datasets.
    - climatologies # Compute climatological operations for the indicators (mean, std, trend).
-   - statistics # Compute measures between observations and simulations (as defined in xsdba.measures)
+   - statistics # Compute measures between observations and reconstructions (as defined in xsdba.measures)
 
 # Task Arguments
 
@@ -154,7 +154,7 @@ statistics:  # ------------------------------------- Statistics ----------------
   input:
     observation: # Parameters used to search exclusively for observation data in the catalog.
       type: ['station-pr', 'station-tas']
-    simulation: # Parameters used to search exclusively for simulation data in the catalog.
+    reconstruction: # Parameters used to search exclusively for reconstruction data in the catalog.
       type: ['reconstruction']
 
   # Expected "measures" YAML dictionary structure:

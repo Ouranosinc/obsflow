@@ -206,16 +206,16 @@ if __name__ == "__main__":
                         **CONFIG["statistics"]["input"]["observation"] # Observation-exclusive search criteria
                     ).to_dataset_dict()
 
-                    sim_dict = pcat.search(
+                    rec_dict = pcat.search(
                         processing_level=processing_level,
                         **search_param_dict,
-                        **CONFIG["statistics"]["input"]["simulation"] # Simulation-exclusive search criteria
+                        **CONFIG["statistics"]["input"]["reconstruction"] # Reconstruction-exclusive search criteria
                     ).to_dataset_dict()
 
                     for obs_dataset_id, obs_dataset in obs_dict.items(): # For each observation dataset
-                        for sim_dataset_id, sim_dataset in sim_dict.items(): # For each simulation dataset
+                        for rec_dataset_id, rec_dataset in rec_dict.items(): # For each reconstruction dataset
 
-                            output_id = f"{measure_name}_{sim_dataset_id}_vs_{obs_dataset_id}" # The id of the output dataset
+                            output_id = f"{measure_name}_{rec_dataset_id}_vs_{obs_dataset_id}" # The id of the output dataset
                             
                             if pcat.exists_in_cat(id=output_id, processing_level="statistics"):
                                 logger.info(f"Skipping existing statistics for: {output_id}")
@@ -225,10 +225,10 @@ if __name__ == "__main__":
                                 Client(**CONFIG["statistics"]["dask"], **daskkws),
                                 xs.measure_time(name=f"statistics {output_id}", logger=logger)
                             ):
-                                logger.info(f"Computing {measure_name} between {sim_dataset_id} and {obs_dataset_id}")
+                                logger.info(f"Computing {measure_name} between {rec_dataset_id} and {obs_dataset_id}")
 
-                                sim_subset = xs.spatial.subset(
-                                    sim_dataset,
+                                rec_subset = xs.spatial.subset(
+                                    rec_dataset,
                                     method='gridpoint',
                                     lat=obs_dataset.lat.values,
                                     lon=obs_dataset.lon.values
@@ -236,18 +236,18 @@ if __name__ == "__main__":
                                 
                                 obs_subset = obs_dataset
 
-                                common_time = np.intersect1d(obs_subset['time'], sim_subset['time'])
+                                common_time = np.intersect1d(obs_subset['time'], rec_subset['time'])
                                 obs_subset_slice = obs_subset.sel(time=common_time)
-                                sim_subset_slice = sim_subset.sel(time=common_time)
+                                rec_subset_slice = rec_subset.sel(time=common_time)
 
                                 da_output = measure_func( # The output data array
-                                    sim=sim_subset_slice[variable_name],
+                                    sim=rec_subset_slice[variable_name],
                                     ref=obs_subset_slice[variable_name]
                                 )
                                 ds_output = da_output.to_dataset(name=f"{variable_name}_{measure_name}") # The output dataset
                                 
                                 ds_output.attrs["cat:id"] = output_id
-                                ds_output.attrs["cat:xrfreq"] = sim_dataset.attrs['cat:xrfreq'] # TODO: should be done automatically?
+                                ds_output.attrs["cat:xrfreq"] = rec_dataset.attrs['cat:xrfreq'] # TODO: should be done automatically?
                                 ds_output.attrs["cat:variable"] = f"{variable_name}_{measure_name}"
                                 ds_output.attrs["cat:processing_level"] = "statistics"
                                 
