@@ -189,9 +189,9 @@ if __name__ == "__main__":
                     #TODO: do it by var
                     xs.save_and_update(ds=ds_clim, pcat=pcat,path=CONFIG['paths']['task'])
 
-    # --- STATISTICS ---
-    if "statistics" in CONFIG["tasks"]:
-        for measure_name, processing_levels in CONFIG["statistics"]["measures"].items():
+    # --- PERFORMANCE ---
+    if "performance" in CONFIG["tasks"]:
+        for measure_name, processing_levels in CONFIG["performance"]["measures"].items():
             measure_func = getattr(xsdba.measures, measure_name)
             for processing_level, search_param_dicts in processing_levels.items():
                 for search_param_dict in search_param_dicts:
@@ -203,13 +203,13 @@ if __name__ == "__main__":
                     obs_dict = pcat.search(
                         processing_level=processing_level, # Ensure the statistic is computed within the same processing level
                         **search_param_dict, # Shared search criteria (e.g., variable, frequency)
-                        **CONFIG["statistics"]["input"]["observation"] # Observation-exclusive search criteria
+                        **CONFIG["performance"]["input"]["observation"] # Observation-exclusive search criteria
                     ).to_dataset_dict()
 
                     rec_dict = pcat.search(
                         processing_level=processing_level,
                         **search_param_dict,
-                        **CONFIG["statistics"]["input"]["reconstruction"] # Reconstruction-exclusive search criteria
+                        **CONFIG["performance"]["input"]["reconstruction"] # Reconstruction-exclusive search criteria
                     ).to_dataset_dict()
 
                     for obs_dataset_id, obs_dataset in obs_dict.items(): # For each observation dataset
@@ -217,13 +217,13 @@ if __name__ == "__main__":
 
                             output_id = f"{measure_name}_{rec_dataset_id}_vs_{obs_dataset_id}" # The id of the output dataset
                             
-                            if pcat.exists_in_cat(id=output_id, processing_level="statistics"):
-                                logger.info(f"Skipping existing statistics for: {output_id}")
+                            if pcat.exists_in_cat(id=output_id, processing_level="performance"):
+                                logger.info(f"Skipping existing performance for: {output_id}")
                                 continue
 
                             with (
-                                Client(**CONFIG["statistics"]["dask"], **daskkws),
-                                xs.measure_time(name=f"statistics {output_id}", logger=logger)
+                                Client(**CONFIG["performance"]["dask"], **daskkws),
+                                xs.measure_time(name=f"performance {output_id}", logger=logger)
                             ):
                                 logger.info(f"Computing {measure_name} between {rec_dataset_id} and {obs_dataset_id}")
 
@@ -249,7 +249,7 @@ if __name__ == "__main__":
                                 ds_output.attrs["cat:id"] = output_id
                                 ds_output.attrs["cat:xrfreq"] = rec_dataset.attrs['cat:xrfreq'] # TODO: should be done automatically?
                                 ds_output.attrs["cat:variable"] = f"{variable_name}_{measure_name}"
-                                ds_output.attrs["cat:processing_level"] = "statistics"
+                                ds_output.attrs["cat:processing_level"] = "performance"
                                 
                                 del ds_output.station.encoding['filters'] # Existing value in encoding's "filters" breaks "save_and_update"
                                 
@@ -257,7 +257,7 @@ if __name__ == "__main__":
                                     ds=ds_output,
                                     pcat=pcat,
                                     path=CONFIG['paths']['task'],
-                                    save_kwargs=CONFIG["statistics"]["save"]
+                                    save_kwargs=CONFIG["performance"]["save"]
                                 )
 
 

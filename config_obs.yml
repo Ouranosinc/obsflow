@@ -15,7 +15,7 @@ tasks:
    - extract # Extract station data, (gridded observation data), and reanalysis data.
    - indicators # Compute xclim indicators on the datasets.
    - climatologies # Compute climatological operations for the indicators (mean, std, trend).
-   - statistics # Compute measures between observations and reconstructions (as defined in xsdba.measures)
+   - performance # Compute measures between observations and reconstructions (as defined in xsdba.measures)
 
 # Task Arguments
 
@@ -145,7 +145,7 @@ aggregate:  # ------------------------------------- Climatological Operations --
   climatological_std: # automatically passed to the function
     op: std
 
-statistics:  # ------------------------------------- Statistics --------------------------------------------------
+performance:  # ------------------------------------- Performance --------------------------------------------------
   # Defines which statistical metrics to compute using functions from xsdba.measures.
   dask:
     n_workers: 8
