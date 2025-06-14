@@ -244,7 +244,7 @@ if __name__ == "__main__":
                                 ds_output = da_output.to_dataset(name=f"{variable_name}_{measure_name}") # The output dataset
                                 
                                 ds_output.attrs["cat:id"] = output_id
-                                ds_output.attrs["cat:xrfreq"] = rec_dataset.attrs['cat:xrfreq'] # TODO: should be done automatically?
+                                ds_output.attrs["cat:xrfreq"]= "fx" # Frequency is fixed, as there is no time axis
                                 ds_output.attrs["cat:variable"] = f"{variable_name}_{measure_name}"
                                 ds_output.attrs["cat:processing_level"] = "performance"
                                 ds_output.attrs["cat:source"] = rec_dataset.attrs['cat:source']
