@@ -191,73 +191,70 @@ if __name__ == "__main__":
 
     # --- PERFORMANCE ---
     if "performance" in CONFIG["tasks"]:
-        for measure_name, processing_levels in CONFIG["performance"]["measures"].items():
+        for measure_name, search_param_dicts in CONFIG["performance"]["measures"].items():
             measure_func = getattr(xsdba.measures, measure_name)
-            for processing_level, search_param_dicts in processing_levels.items():
-                for search_param_dict in search_param_dicts:
-                    # search_param_dict provides parameters for pcat.search, enabling selection
-                    # of equivalent datasets (e.g., same variable, frequency, etc; but from different sources)
-                    
-                    variable_name = search_param_dict["variable"] # The variable for which we're computing the measure
+            for search_param_dict in search_param_dicts:
+                # search_param_dict provides parameters for pcat.search, enabling selection
+                # of equivalent datasets (e.g., same variable, frequency, etc; but from different sources)
+                
+                variable_name = search_param_dict["variable"] # The variable for which we're computing the measure
 
-                    obs_dict = pcat.search(
-                        processing_level=processing_level, # Ensure the statistic is computed within the same processing level
-                        **search_param_dict, # Shared search criteria (e.g., variable, frequency)
-                        **CONFIG["performance"]["input"]["observation"] # Observation-exclusive search criteria
-                    ).to_dataset_dict()
+                obs_dict = pcat.search(
+                    **search_param_dict, # Shared search criteria (e.g., variable, frequency)
+                    **CONFIG["performance"]["input"]["observation"] # Observation-exclusive search criteria
+                ).to_dataset_dict()
 
-                    rec_dict = pcat.search(
-                        processing_level=processing_level,
-                        **search_param_dict,
-                        **CONFIG["performance"]["input"]["reconstruction"] # Reconstruction-exclusive search criteria
-                    ).to_dataset_dict()
+                rec_dict = pcat.search(
+                    **search_param_dict,
+                    **CONFIG["performance"]["input"]["reconstruction"] # Reconstruction-exclusive search criteria
+                ).to_dataset_dict()
 
-                    for obs_dataset_id, obs_dataset in obs_dict.items(): # For each observation dataset
-                        for rec_dataset_id, rec_dataset in rec_dict.items(): # For each reconstruction dataset                            
-                            if pcat.exists_in_cat(id=output_id, processing_level="performance"):
-                                logger.info(f"Skipping existing performance for: {output_id}")
-                                continue
+                for obs_dataset_id, obs_dataset in obs_dict.items(): # For each observation dataset
+                    for rec_dataset_id, rec_dataset in rec_dict.items(): # For each reconstruction dataset                            
+                        if pcat.exists_in_cat(id=output_id, processing_level="performance"):
+                            logger.info(f"Skipping existing performance for: {output_id}")
+                            continue
 
-                            with (
-                                Client(**CONFIG["performance"]["dask"], **daskkws),
-                                xs.measure_time(name=f"performance {output_id}", logger=logger)
-                            ):
-                                logger.info(f"Computing {measure_name} between {rec_dataset_id} and {obs_dataset_id}")
+                        with (
+                            Client(**CONFIG["performance"]["dask"], **daskkws),
+                            xs.measure_time(name=f"performance {output_id}", logger=logger)
+                        ):
+                            logger.info(f"Computing {measure_name} between {rec_dataset_id} and {obs_dataset_id}")
 
-                                rec_subset = xs.spatial.subset(
-                                    rec_dataset,
-                                    method='gridpoint',
-                                    lat=obs_dataset.lat.values,
-                                    lon=obs_dataset.lon.values
-                                )
-                                
-                                obs_subset = obs_dataset
+                            rec_subset = xs.spatial.subset(
+                                rec_dataset,
+                                method='gridpoint',
+                                lat=obs_dataset.lat.values,
+                                lon=obs_dataset.lon.values
+                            )
+                            
+                            obs_subset = obs_dataset
 
-                                common_time = np.intersect1d(obs_subset['time'], rec_subset['time'])
-                                obs_subset_slice = obs_subset.sel(time=common_time)
-                                rec_subset_slice = rec_subset.sel(time=common_time)
+                            common_time = np.intersect1d(obs_subset['time'], rec_subset['time'])
+                            obs_subset_slice = obs_subset.sel(time=common_time)
+                            rec_subset_slice = rec_subset.sel(time=common_time)
 
-                                da_output = measure_func( # The output data array
-                                    sim=rec_subset_slice[variable_name],
-                                    ref=obs_subset_slice[variable_name]
-                                )
-                                ds_output = da_output.to_dataset(name=f"{variable_name}_{measure_name}") # The output dataset
-                                
-                                ds_output.attrs["cat:id"] = output_id
-                                ds_output.attrs["cat:xrfreq"]= "fx" # Frequency is fixed, as there is no time axis
-                                ds_output.attrs["cat:variable"] = f"{variable_name}_{measure_name}"
-                                ds_output.attrs["cat:processing_level"] = "performance"
-                                ds_output.attrs["cat:source"] = rec_dataset.attrs['cat:source']
-                                ds_output.attrs["cat:performance_base"] = obs_dataset.attrs['cat:source']
+                            da_output = measure_func( # The output data array
+                                sim=rec_subset_slice[variable_name],
+                                ref=obs_subset_slice[variable_name]
+                            )
+                            ds_output = da_output.to_dataset(name=f"{variable_name}_{measure_name}") # The output dataset
+                            
+                            ds_output.attrs["cat:id"] = output_id
+                            ds_output.attrs["cat:xrfreq"]= "fx" # Frequency is fixed, as there is no time axis
+                            ds_output.attrs["cat:variable"] = f"{variable_name}_{measure_name}"
+                            ds_output.attrs["cat:processing_level"] = "performance"
+                            ds_output.attrs["cat:source"] = rec_dataset.attrs['cat:source']
+                            ds_output.attrs["cat:performance_base"] = obs_dataset.attrs['cat:source']
 
-                                del ds_output.station.encoding['filters'] # Existing value in encoding's "filters" breaks "save_and_update"
-                                
-                                xs.save_and_update(
-                                    ds=ds_output,
-                                    pcat=pcat,
-                                    path=CONFIG['paths']['task'],
-                                    save_kwargs=CONFIG["performance"]["save"]
-                                )
+                            del ds_output.station.encoding['filters'] # Existing value in encoding's "filters" breaks "save_and_update"
+                            
+                            xs.save_and_update(
+                                ds=ds_output,
+                                pcat=pcat,
+                                path=CONFIG['paths']['task'],
+                                save_kwargs=CONFIG["performance"]["save"]
+                            )
 
 
 
