@@ -191,13 +191,13 @@ if __name__ == "__main__":
 
     # --- PERFORMANCE ---
     if "performance" in CONFIG["tasks"]:
-        for measure_name, search_param_dicts in CONFIG["performance"]["measures"].items():
-            measure_func = getattr(xsdba.measures, measure_name)
+        for statistic_name, search_param_dicts in CONFIG["performance"]["statistics"].items():
+            statistic_func = getattr(xsdba.measures, statistic_name)
             for search_param_dict in search_param_dicts:
                 # search_param_dict provides parameters for pcat.search, enabling selection
                 # of equivalent datasets (e.g., same variable, frequency, etc; but from different sources)
                 
-                variable_name = search_param_dict["variable"] # The variable for which we're computing the measure
+                variable_name = search_param_dict["variable"] # The variable for which we're computing the statistic
 
                 obs_dict = pcat.search(
                     **search_param_dict, # Shared search criteria (e.g., variable, frequency)
@@ -219,7 +219,7 @@ if __name__ == "__main__":
                             Client(**CONFIG["performance"]["dask"], **daskkws),
                             xs.measure_time(name=f"performance {output_id}", logger=logger)
                         ):
-                            logger.info(f"Computing {measure_name} between {rec_dataset_id} and {obs_dataset_id}")
+                            logger.info(f"Computing {statistic_name} between {rec_dataset_id} and {obs_dataset_id}")
 
                             rec_subset = xs.spatial.subset(
                                 rec_dataset,
@@ -234,15 +234,15 @@ if __name__ == "__main__":
                             obs_subset_slice = obs_subset.sel(time=common_time)
                             rec_subset_slice = rec_subset.sel(time=common_time)
 
-                            da_output = measure_func( # The output data array
+                            da_output = statistic_func( # The output data array
                                 sim=rec_subset_slice[variable_name],
                                 ref=obs_subset_slice[variable_name]
                             )
-                            ds_output = da_output.to_dataset(name=f"{variable_name}_{measure_name}") # The output dataset
+                            ds_output = da_output.to_dataset(name=f"{variable_name}_{statistic_name}") # The output dataset
                             
                             ds_output.attrs["cat:id"] = output_id
                             ds_output.attrs["cat:xrfreq"]= "fx" # Frequency is fixed, as there is no time axis
-                            ds_output.attrs["cat:variable"] = f"{variable_name}_{measure_name}"
+                            ds_output.attrs["cat:variable"] = f"{variable_name}_{statistic_name}"
                             ds_output.attrs["cat:processing_level"] = "performance"
                             ds_output.attrs["cat:source"] = rec_dataset.attrs['cat:source']
                             ds_output.attrs["cat:performance_base"] = obs_dataset.attrs['cat:source']
