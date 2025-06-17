@@ -162,20 +162,11 @@ performance:  # ------------------------------------- Performance --------------
   #   statistics:
   #      STATISTIC:
   #         - variable: VARIABLE1
-  #           OTHER_ATTR: VALUE1
-  #           ...
   #         - variable: VARIABLE2
-  #           OTHER_ATTR: VALUE2
-  #           ...
   #         - ...
   #
-  # STATISTIC: Which statistic we're computing                                   e.g., 'rmse', 'mae', etc.
-  # VARIABLE: Which variables we're computing it for                         e.g., 'tg_mean_annual', 'pr_mean_seasonal'
-  # OTHER_ATTR: Other attribute(s) which allow us to select each variable    e.g., 'frequency', 'source'
-  #
-  # OTHER_ATTR (other attribute(s)) is used when variable names alone are insufficient to differentiate between variables.
-  # For example, if a variable is computed at multiple frequencies, but the frequency is not reflected in the variable name,
-  # OTHER_ATTR can be used to capture that distinction.
+  # STATISTIC: Which statistic we're computing            e.g., 'rmse', 'mae', etc.
+  # VARIABLE: Which variables we're computing it for      e.g., 'tg_mean_annual', 'pr_mean_seasonal'
 
   statistics:
     rmse:
@@ -183,13 +174,6 @@ performance:  # ------------------------------------- Performance --------------
       - variable: tg_mean_seasonal
       - variable: pr_mean_annual
       - variable: pr_mean_seasonal
-  # Example of a more complex input structure:
-  #statistics:
-  #  rmse: &annual_variables
-  #      - variable: tg_mean_annual
-  #      - variable: pr_mean_annual
-  #  mae:
-  #      - variable: tg_mean_seasonal
 
   save:
     rechunk:
