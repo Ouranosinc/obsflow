@@ -228,7 +228,12 @@ if __name__ == "__main__":
                                 lon=obs_dataset.lon.values
                             )
                             
-                            obs_subset = obs_dataset
+                            obs_subset = xs.spatial.subset( # Necessary for consistent dimension names between both subsets
+                                obs_dataset,
+                                method='gridpoint',
+                                lat=obs_dataset.lat.values,
+                                lon=obs_dataset.lon.values
+                            )
 
                             common_time = np.intersect1d(obs_subset['time'], rec_subset['time'])
                             obs_subset_slice = obs_subset.sel(time=common_time)
