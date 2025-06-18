@@ -245,9 +245,9 @@ if __name__ == "__main__":
                                 lon=station_lons
                             )
                             
-                            obs_subset = xs.spatial.subset( # Necessary for consistent dimension names between both subsets
-                                obs_dataset,
-                                method='gridpoint',
+                            obs_subset = xs.spatial.subset( # Necessary for consistent dimension names between both subsets. If left out,
+                                obs_dataset,                # obs_subset will keep dimension "station", while rec_subset's will be "site",
+                                method='gridpoint',         # which will lead to both dimensions being present in the output data array.
                                 lat=station_lats,
                                 lon=station_lons
                             )
