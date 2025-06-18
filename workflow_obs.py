@@ -197,13 +197,13 @@ if __name__ == "__main__":
             statistic_func = getattr(xsdba.measures, statistic_name)
             for search_param_dict in search_param_dicts:
                 # search_param_dict provides parameters for pcat.search, enabling selection
-                # of equivalent datasets (e.g., same variable, frequency, etc; but from different sources)
+                # of equivalent datasets (e.g., same variable; but from different sources)
                 
                 variable_name = search_param_dict["variable"] # The variable for which we're computing the measure
                 performance_variable_name = f"{variable_name}_{statistic_name}"
 
                 obs_dict = pcat.search(
-                    **search_param_dict, # Shared search criteria (e.g., variable, frequency)
+                    **search_param_dict, # Shared search criteria (e.g., variable)
                     **CONFIG["performance"]["input"]["observation"] # Observation-exclusive search criteria
                 ).to_dataset_dict()
 
