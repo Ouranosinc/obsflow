@@ -46,6 +46,10 @@ if __name__ == "__main__":
     pcat = xs.ProjectCatalog(CONFIG["paths"]["project_catalog"])
     xs.catalog.ID_COLUMNS.append("type")
 
+    # add a column to allow searching during performance task
+    pcat.df['performance_base']=[np.nan]*len(pcat.df)
+    pcat.update()
+
     # set some recurrent variables
     if CONFIG.get("to_dataset_dict", False):
         tdd = CONFIG["to_dataset_dict"]
@@ -219,12 +223,7 @@ if __name__ == "__main__":
                         rec_source = rec_dataset.attrs['cat:source']
 
                         
-                        if pcat.exists_in_cat(variable=performance_variable_name,
-                                              path=performance_path.format(processing_level="performance",
-                                                                           id=rec_dataset.attrs["cat:id"],
-                                                                           performance_base=obs_dataset.attrs["cat:id"],
-                                                                           xrfreq="fx")
-                                              ):
+                        if pcat.exists_in_cat(id=rec_dataset_id, processing_level="performance", performance_base=obs_dataset_id):
                             logger.info(f"Skipping existing performance for: {performance_variable_name} ({rec_source} vs {obs_source})")
                             continue
 
