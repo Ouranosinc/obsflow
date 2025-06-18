@@ -282,8 +282,8 @@ if __name__ == "__main__":
 
 
 
-    #xs.send_mail(
-    #    subject="ObsFlow - Message",
-    #    msg="Congratulations! All tasks of the workflow were completed!",
-    #)
+    xs.send_mail(
+        subject="ObsFlow - Message",
+        msg="Congratulations! All tasks of the workflow were completed!",
+    )
 
