@@ -269,6 +269,7 @@ if __name__ == "__main__":
                             ds_output.attrs["cat:source"] = rec_source
                             ds_output.attrs["cat:performance_base"] = obs_dataset.attrs["cat:id"]
                             ds_output.attrs["cat:id"] = rec_dataset.attrs["cat:id"]
+                            ds_output.attrs["cat:domain"] = rec_dataset.attrs["cat:domain"]
 
                             del ds_output.station.encoding['filters'] # Existing value in encoding's "filters" breaks "save_and_update"
                             
