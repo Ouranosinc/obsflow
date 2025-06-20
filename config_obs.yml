@@ -15,6 +15,7 @@ tasks:
    - extract # Extract station data, (gridded observation data), and reanalysis data.
    - indicators # Compute xclim indicators on the datasets.
    - climatologies # Compute climatological operations for the indicators (mean, std, trend).
+   - performance # Compute performance metrics of type xsdba.measures.StatisticalPropertyMeasure between observations and reconstructions
 
 # Task Arguments
 
@@ -39,6 +40,8 @@ extract:  # ------------------------------------- Extraction -------------------
           - ERA5-Land
           - RDRS
           - CaSR
+          - EMDNA
+          - PCICBlend
     extract_dataset: &extract
       region: 
         name: Quebec
@@ -126,7 +129,8 @@ aggregate:  # ------------------------------------- Climatological Operations --
     threads_per_worker: 4
     memory_limit: "15GB"
   periods:
-    - ['1988', '2017']
+    - ['1981', '2010']
+    - ['1991', '2020']
   input:
     processing_level: indicators
   climatological_mean: 
@@ -140,6 +144,40 @@ aggregate:  # ------------------------------------- Climatological Operations --
   #   - pr_std
   climatological_std: # automatically passed to the function
     op: std
+
+performance:  # ------------------------------------- Performance --------------------------------------------------
+  # Defines which statistical metrics to compute using functions from xsdba.measures.
+  dask:
+    n_workers: 8
+    threads_per_worker: 5
+    memory_limit: "8GB"
+  input:
+    observation: # Parameters used to search exclusively for observation data in the catalog.
+      type: ['station-pr', 'station-tas']
+    reconstruction: # Parameters used to search exclusively for reconstruction data in the catalog.
+      type: ['reconstruction']
+
+  # Expected "statistics" YAML dictionary structure:
+  #
+  #   statistics:
+  #      STATISTIC:
+  #         - variable: VARIABLE1
+  #         - variable: VARIABLE2
+  #         - ...
+  #
+  # STATISTIC: Which statistic we're computing            e.g., 'rmse', 'mae', etc.
+  # VARIABLE: Which variables we're computing it for      e.g., 'tg_mean_annual', 'pr_mean_seasonal'
+
+  statistics:
+    rmse:
+      - variable: tg_mean_annual
+      - variable: tg_mean_seasonal
+      - variable: pr_mean_annual
+      - variable: pr_mean_seasonal
+
+  save:
+    rechunk:
+      station: -1
 
 
 
@@ -156,6 +194,10 @@ scripting: # send an email when code fails or succeed
   send_mail_on_exit:
     msg_err: I crashed, something went wrong!
     on_error_only: True
+
+set_options:
+  data_validation: log
+  check_missing: skip
 
 io: 
   save_to_zarr: # passed automatically to all save_to_zarr
