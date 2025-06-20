@@ -197,7 +197,7 @@ scripting: # send an email when code fails or succeed
 
 set_options:
   data_validation: log
-  check_missing: skip
+  check_missing: wmo
 
 io: 
   save_to_zarr: # passed automatically to all save_to_zarr
