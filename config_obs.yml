@@ -37,7 +37,7 @@ extract:  # ------------------------------------- Extraction -------------------
         tas: D
       other_search_criteria:
         source:
-          - ERA5-Land
+          #- ERA5-Land # pr file got updated, catalog out of date until monday july 1st
           - RDRS
           - CaSR
           - EMDNA
