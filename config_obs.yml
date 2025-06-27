@@ -37,10 +37,10 @@ extract:  # ------------------------------------- Extraction -------------------
         tas: D
       other_search_criteria:
         source:
-          #- ERA5-Land
-          #- RDRS
-          #- CaSR
-          #- EMDNA
+          - ERA5-Land
+          - RDRS
+          - CaSR
+          - EMDNA
           - PCICBlend
     extract_dataset: &extract
       region: 
