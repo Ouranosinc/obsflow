@@ -19,7 +19,7 @@ indicators:
   tg_mean_annual:
     base: tg_mean
     parameters:
-      freq: YS
+      freq: YS-JAN
   tg_mean_seasonal:
     base: tg_mean
     parameters:
@@ -28,7 +28,7 @@ indicators:
   pr_mean_annual:
     base: prcpavg
     parameters:
-      freq: YS
+      freq: YS-JAN
   pr_mean_seasonal:
     base: prcpavg
     parameters:

@@ -37,10 +37,10 @@ extract:  # ------------------------------------- Extraction -------------------
         tas: D
       other_search_criteria:
         source:
-          - ERA5-Land
-          - RDRS
-          - CaSR
-          - EMDNA
+          #- ERA5-Land
+          #- RDRS
+          #- CaSR
+          #- EMDNA
           - PCICBlend
     extract_dataset: &extract
       region: 
@@ -156,7 +156,7 @@ performance:  # ------------------------------------- Performance --------------
       type: ['station-pr', 'station-tas']
     reconstruction: # Parameters used to search exclusively for reconstruction data in the catalog.
       type: ['reconstruction']
-
+  minimum_n_years: 20
   # Expected "statistics" YAML dictionary structure:
   #
   #   statistics:

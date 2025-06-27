@@ -232,34 +232,44 @@ if __name__ == "__main__":
                             xs.measure_time(name=f"performance {performance_variable_name} ({rec_source} vs {obs_source})", logger=logger)
                         ):
                             logger.info(f"Computing {statistic_name} between {rec_dataset_id} and {obs_dataset_id}")
-
                             ## Selecting grid points located on stations ##
                             station_lats = obs_dataset.lat.values
                             station_lons = obs_dataset.lon.values
-                            
-                            rec_subset = xs.spatial.subset(
+
+                            # drop the nans, to avoid choosing a grid cell in the sea during the subsetting
+                            rec_dataset=xs.utils.stack_drop_nans(rec_dataset,
+                                mask = rec_dataset.isel(time=10, drop=True).notnull().compute())
+                            rec_dataset = xs.spatial.subset(
                                 rec_dataset,
                                 method='gridpoint',
                                 lat=station_lats,
                                 lon=station_lons
                             )
-                            
-                            obs_subset = xs.spatial.subset( # Necessary for consistent dimension names between both subsets. If left out,
-                                obs_dataset,                # obs_subset will keep dimension "station", while rec_subset's will be "site",
-                                method='gridpoint',         # which will lead to both dimensions being present in the output data array.
-                                lat=station_lats,
-                                lon=station_lons
-                            )
+                            # put back the unique coords of the obs on the rec
+                            rec_dataset=rec_dataset.rename({'site':'station'})
+                            station_coords=set(obs_dataset.coords) - set(rec_dataset.coords)
+                            for c in station_coords:
+                                rec_dataset.coords[c]=obs_dataset.coords[c]
 
-                            ## Selecting a common time slice ##
-                            common_time = np.intersect1d(obs_subset['time'], rec_subset['time'])
-                            obs_subset_slice = obs_subset.sel(time=common_time)
-                            rec_subset_slice = rec_subset.sel(time=common_time)
+
+                            # unstack date to have one stat per season
+                            rec_dataset=xs.utils.unstack_dates(rec_dataset)
+                            obs_dataset=xs.utils.unstack_dates(obs_dataset)
+
+                            ## Selecting a common time slice, because don't all have the same end date
+                            common_time = np.intersect1d(obs_dataset['time'], rec_dataset['time'])
+                            obs_dataset = obs_dataset.sel(time=common_time)
+                            rec_dataset = rec_dataset.sel(time=common_time)
+
+                            #check if stations have a least n years of data, if not fill it with nan
+                            n=CONFIG['performance']['minimum_n_years']
+                            obs_dataset = obs_dataset.where((obs_dataset.count(dim='time')>=n).compute())
+
 
                             ## Computing the performance metric ##
                             da_output = statistic_func( # The output data array
-                                sim=rec_subset_slice[variable_name],
-                                ref=obs_subset_slice[variable_name]
+                                sim=rec_dataset[variable_name],
+                                ref=obs_dataset[variable_name]
                             )
                             ds_output = da_output.to_dataset(name=performance_variable_name) # The output dataset
                             
