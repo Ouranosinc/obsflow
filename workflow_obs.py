@@ -244,9 +244,14 @@ if __name__ == "__main__":
                                 lat=station_lats,
                                 lon=station_lons
                             )
+                            
+                            # Rename the dimension added by xs.spatial.subset
+                            if 'site' in rec_subset.dims:
+                                rec_subset = rec_subset.rename({'site': 'station'})
+                            else:
+                                raise ValueError(f"Expected 'site' dimension in rec_subset, but found: {dict(rec_subset.dims)}")
+                            
                             # put back the unique coords of the obs on the rec
-                            rec_subset=rec_subset.rename({'site':'station'})
-
                             station_coords=set(obs_dataset.coords) - set(rec_subset.coords)
                             for c in station_coords:
                                 rec_subset.coords[c]=obs_dataset.coords[c]
