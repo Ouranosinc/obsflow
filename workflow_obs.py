@@ -255,14 +255,14 @@ if __name__ == "__main__":
                             rec_unstacked=xs.utils.unstack_dates(rec_subset)
                             obs_unstacked=xs.utils.unstack_dates(obs_dataset)
 
-                            ## Selecting a common time slice, because don't all have the same end date
+                            ## Selecting a common time slice, as their start/end dates might differ
                             common_time = np.intersect1d(obs_unstacked['time'], rec_unstacked['time'])
                             obs_sliced = obs_unstacked.sel(time=common_time)
                             rec_sliced = rec_unstacked.sel(time=common_time)
 
                             #check if stations have a least n years of data, if not fill it with nan
-                            n=CONFIG['performance']['minimum_n_years']
-                            obs_filtered = obs_sliced.where((obs_sliced.count(dim='time')>=n).compute())
+                            min_years=CONFIG['performance']['minimum_n_years']
+                            obs_filtered = obs_sliced.where((obs_sliced.count(dim='time')>=min_years).compute())
 
 
                             ## Computing the performance metric ##
