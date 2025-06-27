@@ -221,7 +221,6 @@ if __name__ == "__main__":
 
                     for rec_dataset_id, rec_dataset in rec_dict.items(): # For each reconstruction dataset
                         rec_source = rec_dataset.attrs['cat:source']
-
                         
                         if pcat.exists_in_cat(id=rec_dataset_id, processing_level="performance", performance_base=obs_dataset_id):
                             logger.info(f"Skipping existing performance for: {performance_variable_name} ({rec_source} vs {obs_source})")
@@ -237,39 +236,39 @@ if __name__ == "__main__":
                             station_lons = obs_dataset.lon.values
 
                             # drop the nans, to avoid choosing a grid cell in the sea during the subsetting
-                            rec_dataset=xs.utils.stack_drop_nans(rec_dataset,
-                                mask = rec_dataset.isel(time=10, drop=True).notnull().compute())
-                            rec_dataset = xs.spatial.subset(
-                                rec_dataset,
+                            rec_nanless=xs.utils.stack_drop_nans(rec_dataset,
+                                                                 mask = rec_dataset.isel(time=10, drop=True).notnull().compute())
+                            rec_subset = xs.spatial.subset(
+                                rec_nanless,
                                 method='gridpoint',
                                 lat=station_lats,
                                 lon=station_lons
                             )
                             # put back the unique coords of the obs on the rec
-                            rec_dataset=rec_dataset.rename({'site':'station'})
-                            station_coords=set(obs_dataset.coords) - set(rec_dataset.coords)
-                            for c in station_coords:
-                                rec_dataset.coords[c]=obs_dataset.coords[c]
+                            rec_subset=rec_subset.rename({'site':'station'})
 
+                            station_coords=set(obs_dataset.coords) - set(rec_subset.coords)
+                            for c in station_coords:
+                                rec_subset.coords[c]=obs_dataset.coords[c]
 
                             # unstack date to have one stat per season
-                            rec_dataset=xs.utils.unstack_dates(rec_dataset)
-                            obs_dataset=xs.utils.unstack_dates(obs_dataset)
+                            rec_unstacked=xs.utils.unstack_dates(rec_subset)
+                            obs_unstacked=xs.utils.unstack_dates(obs_dataset)
 
                             ## Selecting a common time slice, because don't all have the same end date
-                            common_time = np.intersect1d(obs_dataset['time'], rec_dataset['time'])
-                            obs_dataset = obs_dataset.sel(time=common_time)
-                            rec_dataset = rec_dataset.sel(time=common_time)
+                            common_time = np.intersect1d(obs_unstacked['time'], rec_unstacked['time'])
+                            obs_sliced = obs_unstacked.sel(time=common_time)
+                            rec_sliced = rec_unstacked.sel(time=common_time)
 
                             #check if stations have a least n years of data, if not fill it with nan
                             n=CONFIG['performance']['minimum_n_years']
-                            obs_dataset = obs_dataset.where((obs_dataset.count(dim='time')>=n).compute())
+                            obs_filtered = obs_sliced.where((obs_sliced.count(dim='time')>=n).compute())
 
 
                             ## Computing the performance metric ##
                             da_output = statistic_func( # The output data array
-                                sim=rec_dataset[variable_name],
-                                ref=obs_dataset[variable_name]
+                                sim=rec_sliced[variable_name],
+                                ref=obs_filtered[variable_name]
                             )
                             ds_output = da_output.to_dataset(name=performance_variable_name) # The output dataset
                             
