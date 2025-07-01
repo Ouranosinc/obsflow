@@ -291,7 +291,9 @@ if __name__ == "__main__":
                             min_years=CONFIG['performance']['minimum_n_years']
                             dobs = dobs.where((dobs.count(dim='time')>=min_years).compute())
 
-
+                            # Rechunk both timeseries into a single chunk each
+                            dobs = dobs.chunk({"time": -1})
+                            drec = drec.chunk({"time": -1})
 
                             ## Computing the performance metric ##
                             da_output = statistic_func( # The output data array
