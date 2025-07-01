@@ -235,7 +235,6 @@ if __name__ == "__main__":
 
                     for rec_dataset_id, rec_dataset in rec_dict.items(): # For each reconstruction dataset
                         rec_source = rec_dataset.attrs['cat:source']
-
                         
                         if pcat.exists_in_cat(id=rec_dataset_id, processing_level="performance", performance_base=obs_dataset_id):
                             logger.info(f"Skipping existing performance for: {performance_variable_name} ({rec_source} vs {obs_source})")
@@ -259,6 +258,13 @@ if __name__ == "__main__":
                                 lat=station_lats,
                                 lon=station_lons
                             )
+                            
+                            # Rename the dimension added by xs.spatial.subset
+                            if 'site' in rec_subset.dims:
+                                rec_subset = rec_subset.rename({'site': 'station'})
+                            else:
+                                raise ValueError(f"Expected 'site' dimension in rec_subset, but found: {dict(rec_subset.dims)}")
+                            
                             # put back the unique coords of the obs on the rec
                             drec=drec.rename({'site':'station'})
                             station_coords=set(obs_dataset.coords) - set(drec.coords)
@@ -275,8 +281,9 @@ if __name__ == "__main__":
                             drec = drec.sel(time=common_time)
 
                             #check if stations have a least n years of data, if not fill it with nan
-                            n=CONFIG['performance']['minimum_n_years']
-                            dobs = dobs.where((dobs.count(dim='time')>=n).compute())
+                            min_years=CONFIG['performance']['minimum_n_years']
+                            dobs = dobs.where((dobs.count(dim='time')>=min_years).compute())
+
 
 
                             ## Computing the performance metric ##
