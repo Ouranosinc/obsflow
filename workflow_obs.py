@@ -23,6 +23,19 @@ xs.load_config(
 if "logging" in CONFIG:
     logger = logging.getLogger("xscen")
 
+def clean_for_zarr(ds: xr.Dataset) -> xr.Dataset:
+    """Clean dataset for Zarr saving: fix encodings and rechunk any multi-chunk variable."""
+    for var in ds.variables:
+        ds[var].encoding.pop("chunks", None)
+
+        da = ds[var]
+        if hasattr(da, "chunks") and da.chunks is not None:
+            # If any dimension has multiple chunks, rechunk fully
+            if any(len(dim_chunks) > 1 for dim_chunks in da.chunks):
+                ds[var] = da.chunk({dim: -1 for dim in da.dims})
+
+    return ds
+
 if __name__ == "__main__":
     # set dask  configuration
     daskkws = CONFIG["dask"].get("client", {})
@@ -82,9 +95,8 @@ if __name__ == "__main__":
                         # update 'cat:type' attribute (little hack to separate station-pr from station-tas)
                         ds.attrs["cat:type"] = source_type
                         ds.attrs["cat:id"] = f'{ds_id}_{source_type}'
+                        
 
-
-                        # save to zarr # format(*cur) is now done in the fonction based on cat attrs
                         xs.save_and_update(ds=ds, pcat=pcat, path=CONFIG['paths']['task'], save_kwargs=type_dict["save"])
 
 
@@ -125,13 +137,14 @@ if __name__ == "__main__":
                         variable=outnames
                     ):
                         logger.info(f"Computing {outfreq} {outnames}")
-                        
+                        ds_input=ds_input.unify_chunks()
                         #TODO: add missing check
                         _, ds_ind = xs.compute_indicators(
                             ds=ds_input,
                             indicators=[(name, ind)],
                         ).popitem()
-
+                        
+                        ds_ind = clean_for_zarr(ds_ind)
                         xs.save_and_update(ds=ds_ind, pcat=pcat,
                             path=CONFIG['paths']['task'],save_kwargs=CONFIG["indicators"]["save"])
 
@@ -168,7 +181,6 @@ if __name__ == "__main__":
                                 rename_variables=True,
                                 horizons_as_dim=True,
                             )
-                            print(ds_mean)
                             all_horizons.append(ds_mean)
 
                             # Calculate interannual standard deviation, skipping intra-[freq] std --------------------
@@ -176,7 +188,7 @@ if __name__ == "__main__":
                             # exclude intra-[freq] standard deviation
                             ds_input_std = ds_input[[v for v in CONFIG["aggregate"]["vars_for_interannual_std"]
                                                      if v in ds_input.data_vars]]
-                            print(ds_input_std)
+
                             ds_std = xs.aggregate.climatological_op(
                                 ds=ds_input_std,
                                 **CONFIG["aggregate"]["climatological_std"],
@@ -185,11 +197,9 @@ if __name__ == "__main__":
                                 horizons_as_dim=True,
                             )
                             all_horizons.append(ds_std)
-                            print(ds_std)
 
                     logger.info(f"Merging climatology of periods for {key_input}")
                     ds_clim = xr.merge([ds.drop_vars('time') for ds in all_horizons], combine_attrs='override')
-                    print(ds_clim)
                     #TODO: do it by var
                     xs.save_and_update(ds=ds_clim, pcat=pcat,path=CONFIG['paths']['task'])
 
@@ -221,7 +231,6 @@ if __name__ == "__main__":
 
                     for rec_dataset_id, rec_dataset in rec_dict.items(): # For each reconstruction dataset
                         rec_source = rec_dataset.attrs['cat:source']
-
                         
                         if pcat.exists_in_cat(id=rec_dataset_id, processing_level="performance", performance_base=obs_dataset_id):
                             logger.info(f"Skipping existing performance for: {performance_variable_name} ({rec_source} vs {obs_source})")
@@ -232,34 +241,45 @@ if __name__ == "__main__":
                             xs.measure_time(name=f"performance {performance_variable_name} ({rec_source} vs {obs_source})", logger=logger)
                         ):
                             logger.info(f"Computing {statistic_name} between {rec_dataset_id} and {obs_dataset_id}")
-
                             ## Selecting grid points located on stations ##
                             station_lats = obs_dataset.lat.values
                             station_lons = obs_dataset.lon.values
-                            
-                            rec_subset = xs.spatial.subset(
-                                rec_dataset,
+
+                            # drop the nans, to avoid choosing a grid cell in the sea during the subsetting
+                            drec=xs.utils.stack_drop_nans(rec_dataset,
+                                mask = rec_dataset.isel(time=slice(1,-1)).notnull().any(dim="time").compute())
+                            drec = xs.spatial.subset(
+                                drec,
                                 method='gridpoint',
                                 lat=station_lats,
                                 lon=station_lons
                             )
-                            
-                            obs_subset = xs.spatial.subset( # Necessary for consistent dimension names between both subsets. If left out,
-                                obs_dataset,                # obs_subset will keep dimension "station", while rec_subset's will be "site",
-                                method='gridpoint',         # which will lead to both dimensions being present in the output data array.
-                                lat=station_lats,
-                                lon=station_lons
-                            )
 
-                            ## Selecting a common time slice ##
-                            common_time = np.intersect1d(obs_subset['time'], rec_subset['time'])
-                            obs_subset_slice = obs_subset.sel(time=common_time)
-                            rec_subset_slice = rec_subset.sel(time=common_time)
+                            # put back the unique coords of the obs on the rec
+                            drec=drec.rename({'site':'station'})
+                            station_coords=set(obs_dataset.coords) - set(drec.coords)
+                            for c in station_coords:
+                                drec.coords[c]=obs_dataset.coords[c]
+
+                            # unstack date to have one stat per season
+                            drec=xs.utils.unstack_dates(drec)
+                            dobs=xs.utils.unstack_dates(obs_dataset)
+
+                            ## Selecting a common time slice, because don't all have the same end date
+                            common_time = np.intersect1d(dobs['time'], drec['time'])
+                            dobs = dobs.sel(time=common_time)
+                            drec = drec.sel(time=common_time)
+
+                            #check if stations have a least n years of data, if not fill it with nan
+                            min_years=CONFIG['performance']['minimum_n_years']
+                            dobs = dobs.where((dobs.count(dim='time')>=min_years).compute())
+
+
 
                             ## Computing the performance metric ##
                             da_output = statistic_func( # The output data array
-                                sim=rec_subset_slice[variable_name],
-                                ref=obs_subset_slice[variable_name]
+                                sim=drec[variable_name],
+                                ref=dobs[variable_name]
                             )
                             ds_output = da_output.to_dataset(name=performance_variable_name) # The output dataset
                             
@@ -268,8 +288,8 @@ if __name__ == "__main__":
                             ds_output.attrs["cat:processing_level"] = "performance"
                             ds_output.attrs["cat:source"] = rec_source
                             ds_output.attrs["cat:performance_base"] = obs_dataset.attrs["cat:id"]
-                            ds_output.attrs["cat:id"] = rec_dataset.attrs["cat:id"]
                             ds_output.attrs["cat:domain"] = rec_dataset.attrs["cat:domain"]
+                            ds_output.attrs["cat:id"] = xs.catalog.generate_id(ds_output, id_columns=xs.catalog.ID_COLUMNS + ['performance_base'])[0]
 
                             del ds_output.station.encoding['filters'] # Existing value in encoding's "filters" breaks "save_and_update"
                             

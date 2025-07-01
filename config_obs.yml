@@ -20,7 +20,7 @@ tasks:
 # Task Arguments
 
 extract:  # ------------------------------------- Extraction --------------------------------------------
-# reanalysis
+#reanalysis
   reconstruction:
     dask:
       n_workers: 2
@@ -37,7 +37,7 @@ extract:  # ------------------------------------- Extraction -------------------
         tas: D
       other_search_criteria:
         source:
-          - ERA5-Land
+          #- ERA5-Land # pr file got updated, catalog out of date until monday july 1st
           - RDRS
           - CaSR
           - EMDNA
@@ -104,8 +104,8 @@ extract:  # ------------------------------------- Extraction -------------------
     extract_dataset: *extract
     save:
       rechunk:
-        time: -1
-        station: 50
+       time: -1
+       station: 50
 
 
 
@@ -135,6 +135,7 @@ aggregate:  # ------------------------------------- Climatological Operations --
     processing_level: indicators
   climatological_mean: 
     op: mean
+    min_periods: &min_periods_val 25
   vars_for_interannual_std: &indicators #TODO: make naming clearer
     - tg_mean_annual
     - tg_mean_seasonal
@@ -144,6 +145,7 @@ aggregate:  # ------------------------------------- Climatological Operations --
   #   - pr_std
   climatological_std: # automatically passed to the function
     op: std
+    min_periods: *min_periods_val
 
 performance:  # ------------------------------------- Performance --------------------------------------------------
   # Defines which statistical metrics to compute using functions from xsdba.measures.
@@ -156,7 +158,7 @@ performance:  # ------------------------------------- Performance --------------
       type: ['station-pr', 'station-tas']
     reconstruction: # Parameters used to search exclusively for reconstruction data in the catalog.
       type: ['reconstruction']
-
+  minimum_n_years: 20
   # Expected "statistics" YAML dictionary structure:
   #
   #   statistics:
@@ -197,7 +199,7 @@ scripting: # send an email when code fails or succeed
 
 set_options:
   data_validation: log
-  check_missing: skip
+  check_missing: wmo
 
 io: 
   save_to_zarr: # passed automatically to all save_to_zarr
