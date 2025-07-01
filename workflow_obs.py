@@ -96,10 +96,6 @@ if __name__ == "__main__":
                         ds.attrs["cat:type"] = source_type
                         ds.attrs["cat:id"] = f'{ds_id}_{source_type}'
                         
-                        # for c in ds.coords:
-                        #      ds[c].encoding.pop('chunks', None)
-                        #      if 'station' in ds[c]:
-                        #          ds[c]=ds[c].chunk({'station':50})
 
                         xs.save_and_update(ds=ds, pcat=pcat, path=CONFIG['paths']['task'], save_kwargs=type_dict["save"])
 
@@ -251,20 +247,14 @@ if __name__ == "__main__":
 
                             # drop the nans, to avoid choosing a grid cell in the sea during the subsetting
                             drec=xs.utils.stack_drop_nans(rec_dataset,
-                                mask = rec_dataset.isel(time=10, drop=True).notnull().compute())
+                                mask = rec_dataset.isel(time=slice(1,-1)).notnull().any(dim="time").compute())
                             drec = xs.spatial.subset(
                                 drec,
                                 method='gridpoint',
                                 lat=station_lats,
                                 lon=station_lons
                             )
-                            
-                            # Rename the dimension added by xs.spatial.subset
-                            if 'site' in rec_subset.dims:
-                                rec_subset = rec_subset.rename({'site': 'station'})
-                            else:
-                                raise ValueError(f"Expected 'site' dimension in rec_subset, but found: {dict(rec_subset.dims)}")
-                            
+
                             # put back the unique coords of the obs on the rec
                             drec=drec.rename({'site':'station'})
                             station_coords=set(obs_dataset.coords) - set(drec.coords)
@@ -298,8 +288,8 @@ if __name__ == "__main__":
                             ds_output.attrs["cat:processing_level"] = "performance"
                             ds_output.attrs["cat:source"] = rec_source
                             ds_output.attrs["cat:performance_base"] = obs_dataset.attrs["cat:id"]
-                            ds_output.attrs["cat:id"] = rec_dataset.attrs["cat:id"]
                             ds_output.attrs["cat:domain"] = rec_dataset.attrs["cat:domain"]
+                            ds_output.attrs["cat:id"] = xs.catalog.generate_id(ds_output, id_columns=xs.catalog.ID_COLUMNS + ['performance_base'])[0]
 
                             del ds_output.station.encoding['filters'] # Existing value in encoding's "filters" breaks "save_and_update"
                             
