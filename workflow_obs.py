@@ -10,6 +10,7 @@ from dask import config as dskconf
 from dask.distributed import Client
 from dask.diagnostics import ProgressBar
 import xclim
+from xclim.core import units
 import xscen as xs
 from xscen.config import CONFIG
 import xsdba
@@ -154,6 +155,7 @@ if __name__ == "__main__":
                     ):
                         logger.info(f"Computing {outfreq} {outnames}")
                         ds_input=ds_input.unify_chunks()
+
                         #TODO: add missing check
                         _, ds_ind = xs.compute_indicators(
                             ds=ds_input,
@@ -161,6 +163,11 @@ if __name__ == "__main__":
                         ).popitem()
                         
                         ds_ind = clean_for_zarr(ds_ind)
+
+                        for var in ds_ind.data_vars:
+                            da_ind = ds_ind[var]
+                            if "units" in da_ind.attrs and da_ind.attrs["units"] == "K":
+                                ds_ind[var] = units.convert_units_to(da_ind, "degC")
 
                         xs.save_and_update(ds=ds_ind, pcat=pcat,
                             path=CONFIG['paths']['task'],save_kwargs=CONFIG["indicators"]["save"])
