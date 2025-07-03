@@ -1,0 +1,115 @@
+digraph ClimatologyDatasets {
+    rankdir=TB;
+    node [shape=box style=filled fontname="Helvetica" fontsize=10 width=1.2];
+
+    // REANALYSES
+    ERA5 [label="ERA5\n(31 km, 4D-Var reanalysis)", fillcolor="#cfe2f3"];
+    MERRA2 [label="MERRA-2", fillcolor="#cfe2f3"];
+    JRA55 [label="JRA-55", fillcolor="#cfe2f3"];
+    ERAInt [label="ERA-Interim", fillcolor="#cfe2f3"];
+
+    // OBSERVATIONS
+    SYNOP [label="SYNOP\n(Surface Obs)", shape=parallelogram, fillcolor="#fff2cc"];
+    METAR [label="METAR\n(Aviation Obs)", shape=parallelogram, fillcolor="#fff2cc"];
+    SWOB [label="SWOB\n(Snow Obs)", shape=parallelogram, fillcolor="#fff2cc"];
+    AdjDlyRS [label="AdjDlyRS\n(Adjusted Daily Rain/Snow)", shape=parallelogram, fillcolor="#fff2cc"];
+    SCDNA [label="SCDNA\n24.6k Precip + 19.6k Temp\nSerially Complete Dataset", shape=parallelogram, fillcolor="#fff2cc"];
+
+    SHIP [label="SHIP\n(Marine Obs)", shape=parallelogram, fillcolor="#fff2cc"];
+    PILOT [label="PILOT\n", shape=parallelogram, fillcolor="#fff2cc"];
+    AIREP [label="AIREP\n(Aircraft Obs)", shape=parallelogram, fillcolor="#fff2cc"];
+    TEMP [label="TEMP\n(Radiosondes)", shape=parallelogram, fillcolor="#fff2cc"];
+    GNSS [label="GNSS-RO\n(Satellite Occultation)", shape=parallelogram, fillcolor="#fff2cc"];
+    SAT [label="Satellite Radiances\n(AMSU, IASI, etc.)", shape=parallelogram, fillcolor="#fff2cc"];
+
+    // BIAS CORRECTION
+    GRDC [label="GRDC\nStreamflow", shape=parallelogram, fillcolor="#ffe599"];
+    USGS [label="USGS\nStreamflow", shape=parallelogram, fillcolor="#ffe599"];
+    HYDAT [label="HYDAT\nStreamflow (Canada)", shape=parallelogram, fillcolor="#ffe599"];
+    CHELSA [label="CHELSA V1.2\nClimatological Bias Corr.", shape=parallelogram, fillcolor="#ffe599"];
+    PBCOR [label="PBCOR\nDaily Bias Corr. from Streamflow", shape=parallelogram, fillcolor="#ffe599"];
+
+    Static [label="Static Inputs\n• GLOBCOVER\n• MODIS albedo & LAI\n• FAO Soil\n• GLCC Land Cover", shape=parallelogram, fillcolor="#fff2cc"];
+
+    // ASSIMILATION MODULES
+    CaPA [label="CaPA\n(Precip Assimilation)", shape=parallelogram, fillcolor="#f9cb9c"];
+    CaLDAS [label="CaLDAS\n(Soil Moisture/Snow DA)", shape=parallelogram, fillcolor="#f9cb9c"];
+
+    // MODELS AND PROCESSING
+    GDRS [label="GDRS\nGlobal Dynamical Downscaling", fillcolor="#c9daf8"];
+    RDRS [label="RDRS\nRegional Downscaling", fillcolor="#c9daf8"];
+    BMA [label="Bayesian Model Averaging\n(Merged Reanalyses)", fillcolor="#fce5cd"];
+    OI [label="Optimal Interpolation\n(Station + Reanalysis)", fillcolor="#fce5cd"];
+    CHTESSEL [label="CHTESSEL\nLand Surface Model", fillcolor="#d9ead3"];
+    GEM [label="GEM\nAtmospheric Model", fillcolor="#d9d2e9"];
+    ISBA [label="ISBA\nSurface Scheme", fillcolor="#d9d2e9"];
+    StatGen [label="Statistical Generator\n(Parametric/Box-Cox, etc.)", fillcolor="#ead1dc"];
+
+    // FINAL DATASETS
+    ERA5_Land [label="ERA5-Land\n\nDomain: Global land\nResolution: 9 km\nTimestep: Hourly\nPeriod: 1981–present\nAssimilation: No\nModel: Offline\nEnsemble: Deterministic\nOutputs: soil temp/moisture, runoff, snow, fluxes", fillcolor="#b6d7a8"];
+
+    CaSR [label="CaSR (RDRS v2.1)\n\nDomain: North America\nResolution: 10 km\nTimestep: Hourly\nPeriod: 1980–2018\nAssimilation: CaPA (precip), CaLDAS (soil/snow)\nModel: Online\nEnsemble: Deterministic\nOutputs: precip, snow, soil state, energy fluxes", fillcolor="#9fc5e8"];
+
+    EMDNA [label="EMDNA\n\nDomain: Canada + border regions\nResolution: 0.1° (~10 km)\nTimestep: Daily\nPeriod: 1979–2018\nAssimilation: BMA + OI\nModel: Offline\nEnsemble: 100 members\nOutputs: Precip, Tmean, Trange, PoP", shape=hexagon, fillcolor="#f9cb9c"];
+
+    // CONNECTIONS
+    ERA5 -> ERA5_Land [label="Downscaled forcing", style=solid];
+    Static -> ERA5_Land [label="Surface params", style=dashed];
+    CHTESSEL -> ERA5_Land [label="Land model", style=solid];
+
+    ERAInt -> GDRS [label="Init forcing", style=solid];
+    GDRS -> RDRS [label="Regional model", style=solid];
+    RDRS -> GEM [style=solid];
+    RDRS -> ISBA [style=solid];
+    GEM -> CaSR [label="Atmos model", style=solid];
+    ISBA -> CaSR [label="Surf model", style=solid];
+    CaPA -> CaSR [label="Precip assimilation", style=dashed];
+    CaLDAS -> CaSR [label="Soil/snow DA", style=dashed];
+
+    ERA5 -> BMA [style=dashed];
+    MERRA2 -> BMA [style=dashed];
+    JRA55 -> BMA [style=dashed];
+    SCDNA -> OI [label="Regression input", style=dashed];
+    BMA -> OI [label="Merged background", style=solid];
+    OI -> CHELSA [label="Daily precip", style=solid];
+    CHELSA -> EMDNA [label="Bias-corrected precip", style=solid];
+    GRDC -> PBCOR [style=dashed];
+    HYDAT -> PBCOR [style=dashed];
+    USGS -> PBCOR [style=dashed];
+    PBCOR -> EMDNA [label="Daily correction", style=solid];
+    OI -> StatGen [label="PDF params (µ, σ, PoP)", style=solid];
+    StatGen -> EMDNA [label="100 ensemble members", style=solid];
+
+    // Observations to Assimilation
+    SYNOP -> CaPA [style=dashed];
+    METAR -> CaPA [style=dashed];
+    SWOB -> CaLDAS [style=dashed];
+    AdjDlyRS -> CaPA [style=dashed];
+    SCDNA -> EMDNA [style=solid];
+
+    // ERA5 Observations
+    SYNOP -> ERA5 [style=dashed];
+    SHIP -> ERA5 [style=dashed];
+    PILOT -> ERA5 [style=dashed];
+    AIREP -> ERA5 [style=dashed];
+    TEMP -> ERA5 [style=dashed];
+    GNSS -> ERA5 [style=dashed];
+    SAT -> ERA5 [style=dashed];
+
+    // TIERED RANKS FOR VERTICAL LAYOUT (MODIFIED)
+    { rank=same; GRDC; USGS; HYDAT }
+    { rank=same; ERA5; MERRA2; JRA55; ERAInt }
+    { rank=same; SCDNA; Static; CaPA; CaLDAS }
+    { rank=same; CHELSA; PBCOR }
+    { rank=same; SHIP; PILOT; AIREP; TEMP; GNSS; SAT }
+    { rank=same; SYNOP; METAR; SWOB; AdjDlyRS }
+    { rank=same; GDRS; BMA }
+    { rank=same; RDRS; OI }
+    { rank=same; CHTESSEL; GEM; ISBA; StatGen }
+    { rank=same; ERA5_Land; CaSR; EMDNA }
+
+    label="Reconstruction dataset summary";
+    labelloc=top;
+    fontsize=14;
+}
+
