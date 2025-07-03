@@ -2,17 +2,19 @@
 import atexit
 import logging
 import os
-import warnings
-import xarray as xr
+
 import numpy as np
-import xarray.plot
+import xarray as xr
+
 from dask import config as dskconf
 from dask.distributed import Client
-from dask.diagnostics import ProgressBar
+
 import xclim
 from xclim.core import units
+
 import xscen as xs
 from xscen.config import CONFIG
+
 import xsdba
 
 def clean_for_zarr(ds: xr.Dataset) -> xr.Dataset:
