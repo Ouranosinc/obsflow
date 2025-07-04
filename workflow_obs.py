@@ -17,19 +17,6 @@ from xscen.config import CONFIG
 
 import xsdba
 
-def clean_for_zarr(ds: xr.Dataset) -> xr.Dataset:
-    """Clean dataset for Zarr saving: fix encodings and rechunk any multi-chunk variable."""
-    for var in ds.variables:
-        ds[var].encoding.pop("chunks", None)
-
-        da = ds[var]
-        if hasattr(da, "chunks") and da.chunks is not None:
-            # If any dimension has multiple chunks, rechunk fully
-            if any(len(dim_chunks) > 1 for dim_chunks in da.chunks):
-                ds[var] = da.chunk({dim: -1 for dim in da.dims})
-
-    return ds
-
 # Load configuration
 xs.load_config(
     "paths_obs.yml", "config_obs.yml", verbose=(__name__ == "__main__"), reset=True
@@ -156,7 +143,6 @@ if __name__ == "__main__":
                         variable=outnames
                     ):
                         logger.info(f"Computing {outfreq} {outnames}")
-                        ds_input=ds_input.unify_chunks()
 
                         #TODO: add missing check
                         _, ds_ind = xs.compute_indicators(
