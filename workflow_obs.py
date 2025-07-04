@@ -2,16 +2,19 @@
 import atexit
 import logging
 import os
-import warnings
-import xarray as xr
+
 import numpy as np
-import xarray.plot
+import xarray as xr
+
 from dask import config as dskconf
 from dask.distributed import Client
-from dask.diagnostics import ProgressBar
+
 import xclim
+from xclim.core import units
+
 import xscen as xs
 from xscen.config import CONFIG
+
 import xsdba
 
 # Load configuration
@@ -42,7 +45,7 @@ if __name__ == "__main__":
     dskconf.set(**{k: v for k, v in CONFIG["dask"].items() if k != "client"})
 
     # set xclim config to compute indicators on 3H data FixMe: can this be removed?
-    xclim.set_options(**CONFIG["set_options"]) #TODO: change check_messing to "wmo" and figure out chunking issues
+    xclim.set_options(**CONFIG["set_options"])
 
     # set email config
     if "scripting" in CONFIG:
@@ -125,6 +128,9 @@ if __name__ == "__main__":
                 
                 # create module with only indicators that are available for this input
                 cur_mod = xs.indicators.select_inds_for_avail_vars(ds_input, CONFIG["indicators"]["path_yml"])
+
+                ds_input = ds_input.unify_chunks()
+
                 # compute indicators and write to disk individually, this way it is easier to add more later
                 for name, ind in cur_mod.iter_indicators():
                     outfreq = ind.injected_parameters["freq"]
@@ -137,7 +143,7 @@ if __name__ == "__main__":
                         variable=outnames
                     ):
                         logger.info(f"Computing {outfreq} {outnames}")
-                        ds_input=ds_input.unify_chunks()
+
                         #TODO: add missing check
                         _, ds_ind = xs.compute_indicators(
                             ds=ds_input,
@@ -145,6 +151,12 @@ if __name__ == "__main__":
                         ).popitem()
                         
                         ds_ind = clean_for_zarr(ds_ind)
+
+                        for var in ds_ind.data_vars:
+                            da_ind = ds_ind[var]
+                            if "units" in da_ind.attrs and da_ind.attrs["units"] == "K":
+                                ds_ind[var] = units.convert_units_to(da_ind, "degC")
+
                         xs.save_and_update(ds=ds_ind, pcat=pcat,
                             path=CONFIG['paths']['task'],save_kwargs=CONFIG["indicators"]["save"])
 
@@ -274,7 +286,9 @@ if __name__ == "__main__":
                             min_years=CONFIG['performance']['minimum_n_years']
                             dobs = dobs.where((dobs.count(dim='time')>=min_years).compute())
 
-
+                            # Rechunk both timeseries into a single chunk each
+                            dobs = dobs.chunk({"time": -1})
+                            drec = drec.chunk({"time": -1})
 
                             ## Computing the performance metric ##
                             da_output = statistic_func( # The output data array
