@@ -158,7 +158,8 @@ performance:  # ------------------------------------- Performance --------------
       type: ['station-pr', 'station-tas']
     reconstruction: # Parameters used to search exclusively for reconstruction data in the catalog.
       type: ['reconstruction']
-  minimum_n_years: 20
+  period: [1981, 2010]
+  minimum_years: 20
   # Expected "statistics" YAML dictionary structure:
   #
   #   statistics:

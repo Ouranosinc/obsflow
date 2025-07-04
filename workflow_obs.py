@@ -277,13 +277,16 @@ if __name__ == "__main__":
                             drec=xs.utils.unstack_dates(drec)
                             dobs=xs.utils.unstack_dates(obs_dataset)
 
-                            ## Selecting a common time slice, because don't all have the same end date
-                            common_time = np.intersect1d(dobs['time'], drec['time'])
-                            dobs = dobs.sel(time=common_time)
-                            drec = drec.sel(time=common_time)
+                            # Select time period from config
+                            start_year, end_year = CONFIG['performance']['period']
+                            time_slice = slice(f"{start_year}-01-01", f"{end_year}-12-31")
+
+                            # Apply the time slice to both datasets
+                            dobs = dobs.sel(time=time_slice)
+                            drec = drec.sel(time=time_slice)
 
                             #check if stations have a least n years of data, if not fill it with nan
-                            min_years=CONFIG['performance']['minimum_n_years']
+                            min_years=CONFIG['performance']['minimum_years']
                             dobs = dobs.where((dobs.count(dim='time')>=min_years).compute())
 
                             # Rechunk both timeseries into a single chunk each
