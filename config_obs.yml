@@ -12,10 +12,10 @@
 #  (by modifying extract:simulation:search_data_catalogs:other_search_criteria:)
 # to make sure all tasks work properly before launching it for all simulations.
 tasks:
-   #- extract # Extract station data, (gridded observation data), and reanalysis data.
-   #- indicators # Compute xclim indicators on the datasets.
-   #- climatologies # Compute climatological operations for the indicators (mean, std, trend).
-   #- performance # Compute performance metrics of type xsdba.measures.StatisticalPropertyMeasure between observations and reconstructions
+   - extract # Extract station data, (gridded observation data), and reanalysis data.
+   - indicators # Compute xclim indicators on the datasets.
+   - climatologies # Compute climatological operations for the indicators (mean, std, trend).
+   - performance # Compute performance metrics of type xsdba.measures.StatisticalPropertyMeasure between observations and reconstructions
    - spatial_mean
 
 # Task Arguments
