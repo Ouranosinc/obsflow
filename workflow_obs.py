@@ -17,6 +17,8 @@ from xscen.config import CONFIG
 
 import xsdba
 
+import geopandas as gpd
+
 # Load configuration
 xs.load_config(
     "paths_obs.yml", "config_obs.yml", verbose=(__name__ == "__main__"), reset=True
@@ -300,7 +302,7 @@ if __name__ == "__main__":
                             )
                             ds_output = da_output.to_dataset(name=performance_variable_name) # The output dataset
                             
-                            ds_output.attrs["cat:xrfreq"]= "fx" # Frequency is fixed, as there is no time axis
+                            ds_output.attrs["cat:xrfreq"] = "fx-"+rec_dataset.attrs["cat:frequency"] # Frequency is fixed, as there is no time axis
                             ds_output.attrs["cat:variable"] = performance_variable_name
                             ds_output.attrs["cat:processing_level"] = "performance"
                             ds_output.attrs["cat:source"] = rec_source
@@ -316,6 +318,80 @@ if __name__ == "__main__":
                                 path=performance_path,
                                 save_kwargs=CONFIG["performance"]["save"]
                             )
+
+
+    # --- SPATIAL MEAN ---
+    if "spatial_mean" in CONFIG["tasks"]:
+        #spatial_mean_path = CONFIG['paths']['spatial_mean']
+
+        # Getting the regions over which each variable is averaged
+        gdf = gpd.read_file(CONFIG["spatial_mean"]["region"]["shape"])
+        regions = [(gdf[gdf["id"] == row.id], row.name) for row in gdf.itertuples(index=False)]
+
+        for search_param in CONFIG["spatial_mean"]["search_params"]:
+            dict_input = pcat.search(**search_param).to_dataset_dict(**tdd)
+
+            source_datasets = [] # The datasets whose variables have been averaged
+
+            for dataset_id, ds_input in dict_input.items():
+                source_name = ds_input.attrs["cat:source"]
+
+                region_means = [] # The regional averages of variables in the current "source_dataset"
+                for region_shape, region_name in regions:
+                    try: 
+                        ds_sub = xs.spatial.subset(
+                            ds_input,
+                            method="shape",
+                            shape=region_shape,
+                            tile_buffer=0,
+                        )
+                    except ValueError as e:
+                        logger.warning(f"Error subsetting region '{region_name}' for source '{source_name}': {e}")
+                        if "No grid cell centroids found" in str(e):
+                            logger.info(f"Skipping region '{region_name}' for source '{source_name}' - no data found.")
+                            continue
+                        raise
+                    ds_sub = ds_sub.drop_vars("crs", errors="ignore") # Removing Coordinate Reference System info
+                    ds_mean = xs.spatial_mean(ds_sub, method="cos-lat") # Computing the means
+                    ds_mean = ds_mean.rename({var: f"{var}_mean" for var in ds_mean.data_vars}) # Renaming variables (ex: tg_mean_annual_rmse -> tg_mean_annual_rmse_mean)
+                    ds_mean = ds_mean.expand_dims({"region": [region_name]}) # Adds the current region as a dimension
+                    region_means.append(ds_mean)
+
+                if not region_means:
+                    logger.warning(f"No data found for any region for variable '{variable_name}' from source '{source_name}'. Skipping.")
+                    continue
+
+                ds_source = xr.concat(region_means, dim="region").expand_dims({"source": [source_name]})
+                source_datasets.append(ds_source)
+
+            if not source_datasets:
+                logger.warning(f"No sources available for variable '{variable_name}'. Skipping.")
+                continue
+
+            # Keep only common coordinates across all source datasets
+            common_coords = set.intersection(*(set(ds.coords) for ds in source_datasets))
+            source_datasets = [
+                ds.drop_vars(set(ds.coords) - common_coords, errors="ignore")
+                for ds in source_datasets
+            ]
+
+            combined_ds = xr.concat(source_datasets, dim="source")
+
+            # Setting attributes for the new dataset
+            combined_ds.attrs.update({
+                "cat:processing_level": "spatial_mean"
+            })
+
+            combined_ds = clean_for_zarr(combined_ds)
+
+            xs.save_and_update(
+                ds=combined_ds,
+                pcat=pcat,
+                path=CONFIG['paths']['task'],
+                save_kwargs=CONFIG["spatial_mean"]["save"]
+            )
+
+
 
 
 

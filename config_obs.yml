@@ -12,10 +12,11 @@
 #  (by modifying extract:simulation:search_data_catalogs:other_search_criteria:)
 # to make sure all tasks work properly before launching it for all simulations.
 tasks:
-   - extract # Extract station data, (gridded observation data), and reanalysis data.
-   - indicators # Compute xclim indicators on the datasets.
-   - climatologies # Compute climatological operations for the indicators (mean, std, trend).
-   - performance # Compute performance metrics of type xsdba.measures.StatisticalPropertyMeasure between observations and reconstructions
+   #- extract # Extract station data, (gridded observation data), and reanalysis data.
+   #- indicators # Compute xclim indicators on the datasets.
+   #- climatologies # Compute climatological operations for the indicators (mean, std, trend).
+   #- performance # Compute performance metrics of type xsdba.measures.StatisticalPropertyMeasure between observations and reconstructions
+   - spatial_mean
 
 # Task Arguments
 
@@ -183,6 +184,20 @@ performance:  # ------------------------------------- Performance --------------
       station: -1
 
 
+spatial_mean: # ------------------------------------- Spatial mean --------------------------------------------------
+  dask:
+    n_workers: 4
+    threads_per_worker: 2
+    memory_limit: "8GB"
+  search_params:
+    - variable: tg_mean_annual_rmse
+    - variable: tg_mean_seasonal_rmse
+    - variable: pr_mean_annual_rmse
+    - variable: pr_mean_seasonal_rmse
+  #spatial_dims: ["lat", "lon", "rlat", "rlon"] # The dimensions which get averaged out
+  save:
+    rechunk:
+      time: -1
 
 # General Arguments
 
