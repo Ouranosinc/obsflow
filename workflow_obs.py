@@ -281,7 +281,7 @@ if __name__ == "__main__":
 
                             # Select time period from config
                             start_year, end_year = CONFIG['performance']['period']
-                            time_slice = slice(f"{start_year}-01-01", f"{end_year}-12-31")
+                            time_slice = slice(str(start_year), str(end_year))
 
                             # Apply the time slice to both datasets
                             dobs = dobs.sel(time=time_slice)
