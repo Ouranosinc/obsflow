@@ -53,6 +53,9 @@ digraph ClimatologyDatasets {
     EMDNA [label="EMDNA\n\nDomain: Canada + border regions\nResolution: 0.1° (~10 km)\nTimestep: Daily\nPeriod: 1979–2018\nAssimilation: BMA + OI\nModel: Offline\nEnsemble: 100 members\nOutputs: Precip, Tmean, Trange, PoP", shape=hexagon, fillcolor="#f9cb9c"];
 
     // CONNECTIONS
+    RDRS -> CaPA [label="Background precip fields", style=dashed];
+    RDRS -> CaLDAS [label="Regional forcing", style=dashed];
+    CaLDAS -> RDRS [label="Soil/snow states", style=dashed];
     ERA5 -> ERA5_Land [label="Downscaled forcing", style=solid];
     Static -> ERA5_Land [label="Surface params", style=dashed];
     CHTESSEL -> ERA5_Land [label="Land model", style=solid];
