@@ -287,9 +287,13 @@ if __name__ == "__main__":
                             dobs = dobs.sel(time=time_slice)
                             drec = drec.sel(time=time_slice)
 
-                            #check if stations have a least n years of data, if not fill it with nan
-                            min_years=CONFIG['performance']['minimum_years']
-                            dobs = dobs.where((dobs.count(dim='time')>=min_years).compute())
+                            # Make a mask for stations with at least n years of data
+                            min_years = CONFIG["performance"]["minimum_years"]
+                            valid_mask = (dobs.count(dim='time')>=min_years).compute()
+
+                            # Drop stations that don’t meet the requirement
+                            dobs = dobs.where(valid_mask, drop=True)
+                            drec = drec.where(valid_mask, drop=True)
 
                             # Rechunk both timeseries into a single chunk each
                             dobs = dobs.chunk({"time": -1})
