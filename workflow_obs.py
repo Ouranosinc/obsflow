@@ -366,7 +366,7 @@ if __name__ == "__main__":
                             continue
                         raise
                     ds_sub = ds_sub.drop_vars("crs", errors="ignore") # Removing Coordinate Reference System info
-                    ds_mean = xs.spatial_mean(ds_sub, method="cos-lat") # Computing the means
+                    ds_mean = xs.spatial_mean(ds_sub, method="cos-lat", kwargs={"skipna": True}) # Computing the means
                     ds_mean = ds_mean.rename({var: f"{var}_mean" for var in ds_mean.data_vars}) # Renaming variables (ex: tg_mean_annual_rmse -> tg_mean_annual_rmse_mean)
                     ds_mean = ds_mean.expand_dims({"region": [region_name]}) # Adds the current region as a dimension
                     region_means.append(ds_mean)
