@@ -366,8 +366,7 @@ if __name__ == "__main__":
                             continue
                         raise
                     ds_sub = ds_sub.drop_vars("crs", errors="ignore") # Removing Coordinate Reference System info
-                    ds_mean = xs.spatial_mean(ds_sub, method="cos-lat", kwargs={"skipna": True}) # Computing the means
-                    ds_mean = ds_mean.rename({var: f"{var}_mean" for var in ds_mean.data_vars}) # Renaming variables (ex: tg_mean_annual_rmse -> tg_mean_annual_rmse_mean)
+                    ds_mean = ds_sub.mean(dim="station", skipna=True) # Computing the means
                     ds_mean = ds_mean.expand_dims({"region": [region_name]}) # Adds the current region as a dimension
                     region_means.append(ds_mean)
 
@@ -396,15 +395,23 @@ if __name__ == "__main__":
             combined_ds.attrs["cat:source"] = "multiple"
             combined_ds.attrs["cat:type"] = "mixed"
             combined_ds.attrs["cat:id"] = xs.catalog.generate_id(combined_ds)[0]
+            combined_ds.attrs["cat:xrfreq"] = "fx"
 
             combined_ds = clean_for_zarr(combined_ds)
 
-            xs.save_and_update(
-                ds=combined_ds,
-                pcat=pcat,
-                path=CONFIG['paths']['task'],
-                save_kwargs=CONFIG["spatial_mean"]["save"]
-            )
+            # Saving dataset by var
+            for var_name in combined_ds.data_vars:
+                logger.info(f"Saving spatial_mean for variable {var_name}")
+
+                ds_var = combined_ds[[var_name]].copy()
+                ds_var.attrs.update(combined_ds.attrs)
+                ds_var.attrs["cat:variable"] = var_name
+
+                xs.save_and_update(
+                    ds=ds_var,
+                    pcat=pcat,
+                    path=CONFIG['paths']['task']
+                )
 
 
 
