@@ -214,11 +214,22 @@ if __name__ == "__main__":
 
                     logger.info(f"Merging climatology of periods for {key_input}")
                     ds_clim = xr.merge([ds.drop_vars('time') for ds in all_horizons], combine_attrs='override')
-                    #TODO: do it by var
-                    xs.save_and_update(ds=ds_clim, pcat=pcat,path=CONFIG['paths']['task'])
+                    
+                    # Saving dataset by var
+                    for var_name in ds_clim.data_vars:
+                        logger.info(f"Saving climatology for variable {var_name}")
+
+                        ds_var = ds_clim[[var_name]].copy()
+                        ds_var.attrs.update(ds_clim.attrs)
+                        ds_var.attrs["cat:variable"] = var_name
+
+                        xs.save_and_update(
+                            ds=ds_var,
+                            pcat=pcat,
+                            path=CONFIG['paths']['task']
+                        )
 
     # --- PERFORMANCE ---
-    performance_path = CONFIG['paths']['performance']
 
     if "performance" in CONFIG["tasks"]:
         for statistic_name, search_param_dicts in CONFIG["performance"]["statistics"].items():
@@ -306,28 +317,27 @@ if __name__ == "__main__":
                             )
                             ds_output = da_output.to_dataset(name=performance_variable_name) # The output dataset
                             
-                            ds_output.attrs["cat:xrfreq"] = "fx-"+rec_dataset.attrs["cat:frequency"] # Frequency is fixed, as there is no time axis
+                            ds_output.attrs["cat:xrfreq"] = "fx"
                             ds_output.attrs["cat:variable"] = performance_variable_name
                             ds_output.attrs["cat:processing_level"] = "performance"
                             ds_output.attrs["cat:source"] = rec_source
                             ds_output.attrs["cat:performance_base"] = obs_dataset.attrs["cat:id"]
                             ds_output.attrs["cat:domain"] = rec_dataset.attrs["cat:domain"]
                             ds_output.attrs["cat:id"] = xs.catalog.generate_id(ds_output, id_columns=xs.catalog.ID_COLUMNS + ['performance_base'])[0]
+                            ds_output.attrs["cat:type"] = "mixed"
 
                             del ds_output.station.encoding['filters'] # Existing value in encoding's "filters" breaks "save_and_update"
                             
                             xs.save_and_update(
                                 ds=ds_output,
                                 pcat=pcat,
-                                path=performance_path,
+                                path=CONFIG['paths']['task'],
                                 save_kwargs=CONFIG["performance"]["save"]
                             )
 
 
     # --- SPATIAL MEAN ---
     if "spatial_mean" in CONFIG["tasks"]:
-        #spatial_mean_path = CONFIG['paths']['spatial_mean']
-
         # Getting the regions over which each variable is averaged
         gdf = gpd.read_file(CONFIG["spatial_mean"]["region"]["shape"])
         regions = [(gdf[gdf["id"] == row.id], row.name) for row in gdf.itertuples(index=False)]
@@ -382,9 +392,10 @@ if __name__ == "__main__":
             combined_ds = xr.concat(source_datasets, dim="source")
 
             # Setting attributes for the new dataset
-            combined_ds.attrs.update({
-                "cat:processing_level": "spatial_mean"
-            })
+            combined_ds.attrs["cat:processing_level"] = "spatial_mean"
+            combined_ds.attrs["cat:source"] = "multiple"
+            combined_ds.attrs["cat:type"] = "mixed"
+            combined_ds.attrs["cat:id"] = xs.catalog.generate_id(combined_ds)[0]
 
             combined_ds = clean_for_zarr(combined_ds)
 
