@@ -372,14 +372,14 @@ if __name__ == "__main__":
                     region_means.append(ds_mean)
 
                 if not region_means:
-                    logger.warning(f"No data found for any region for variable '{variable_name}' from source '{source_name}'. Skipping.")
+                    logger.warning(f"No data found in any region for source {source_name}. Skipping.")
                     continue
 
                 ds_source = xr.concat(region_means, dim="region").expand_dims({"source": [source_name]})
                 source_datasets.append(ds_source)
 
             if not source_datasets:
-                logger.warning(f"No sources available for variable '{variable_name}'. Skipping.")
+                logger.warning(f"No sources available for search_param {search_param}. Skipping.")
                 continue
 
             # Keep only common coordinates across all source datasets
