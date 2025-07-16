@@ -366,8 +366,21 @@ if __name__ == "__main__":
                             continue
                         raise
                     ds_sub = ds_sub.drop_vars("crs", errors="ignore") # Removing Coordinate Reference System info
-                    ds_mean = ds_sub.mean(dim="station", skipna=True) # Computing the means
-                    ds_mean = ds_mean.expand_dims({"region": [region_name]}) # Adds the current region as a dimension
+
+                    # Compute mean
+                    ds_mean = ds_sub.mean(dim="station", skipna=True)
+                    ds_mean = ds_mean.expand_dims({"region": [region_name]})
+
+                    # Compute count (shared coordinate)
+                    nstation = ds_sub.count(dim="station")
+                    nstation = nstation.expand_dims({"region": [region_name]})
+                    nstation = nstation.to_array().mean("variable")  # collapse across vars if needed
+                    nstation.name = "nstation"
+
+                    # Attach nstation as shared coordinate
+                    for var in ds_mean.data_vars:
+                        ds_mean[var] = ds_mean[var].assign_coords(nstation=nstation)
+
                     region_means.append(ds_mean)
 
                 if not region_means:
