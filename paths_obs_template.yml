@@ -2,6 +2,7 @@ paths:
   project_catalog: &pcat
     /PERM/USER/obsflow/pcat_obs.json
   task: /PERM/USER/obsflow/{processing_level}/{id}_{variable}_{xrfreq}_{processing_level}.zarr
+  performance: /PERM/USER/obsflow/{processing_level}/{id}_{variable}_{xrfreq}_{processing_level}_{performance_base}.zarr 
   figures: /PERM/USER/obsflow/figures/{processing_level}/{horizon}/{freq}/{file_name}.png
 
 extract:

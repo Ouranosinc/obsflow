@@ -59,14 +59,14 @@ if __name__ == "__main__":
             CONFIG["paths"]["project_catalog"],
             project=CONFIG["project"],
         )
+        # add a column to allow searching during performance task
+        pcat.df['performance_base']=[np.nan]*len(pcat.df)
+        pcat.update()
 
     # load project catalog
     pcat = xs.ProjectCatalog(CONFIG["paths"]["project_catalog"])
-    xs.catalog.ID_COLUMNS.append("type")
 
-    # add a column to allow searching during performance task
-    pcat.df['performance_base']=[np.nan]*len(pcat.df)
-    pcat.update()
+
 
     # set some recurrent variables
     if CONFIG.get("to_dataset_dict", False):
@@ -256,8 +256,9 @@ if __name__ == "__main__":
 
                     for rec_dataset_id, rec_dataset in rec_dict.items(): # For each reconstruction dataset
                         rec_source = rec_dataset.attrs['cat:source']
-                        
-                        if pcat.exists_in_cat(id=rec_dataset_id, processing_level="performance", performance_base=obs_dataset_id):
+                        if pcat.exists_in_cat(id=rec_dataset.attrs["cat:id"], processing_level="performance",
+                                              performance_base=obs_dataset.attrs["cat:id"],
+                                              variable=performance_variable_name):
                             logger.info(f"Skipping existing performance for: {performance_variable_name} ({rec_source} vs {obs_source})")
                             continue
 
@@ -316,23 +317,21 @@ if __name__ == "__main__":
                                 ref=dobs[variable_name]
                             )
                             ds_output = da_output.to_dataset(name=performance_variable_name) # The output dataset
-                            
+
+                            ds_output.attrs=rec_dataset.attrs # inherit most attrs from the rec input
                             ds_output.attrs["cat:xrfreq"] = "fx"
                             ds_output.attrs["cat:variable"] = performance_variable_name
                             ds_output.attrs["cat:processing_level"] = "performance"
-                            ds_output.attrs["cat:source"] = rec_source
                             ds_output.attrs["cat:performance_base"] = obs_dataset.attrs["cat:id"]
-                            ds_output.attrs["cat:domain"] = rec_dataset.attrs["cat:domain"]
-                            ds_output.attrs["cat:id"] = xs.catalog.generate_id(ds_output, id_columns=xs.catalog.ID_COLUMNS + ['performance_base'])[0]
-                            ds_output.attrs["cat:type"] = "mixed"
+
 
                             del ds_output.station.encoding['filters'] # Existing value in encoding's "filters" breaks "save_and_update"
                             
                             xs.save_and_update(
                                 ds=ds_output,
                                 pcat=pcat,
-                                path=CONFIG['paths']['task'],
-                                save_kwargs=CONFIG["performance"]["save"]
+                                path=CONFIG['paths']['performance'],
+                                save_kwargs=CONFIG["performance"]["save"],
                             )
 
 
@@ -343,7 +342,10 @@ if __name__ == "__main__":
         regions = [(gdf[gdf["id"] == row.id], row.name) for row in gdf.itertuples(index=False)]
 
         for search_param in CONFIG["spatial_mean"]["search_params"]:
-            dict_input = pcat.search(**search_param).to_dataset_dict(**tdd)
+            dict_input = pcat.search(**search_param, processing_level='performance').to_dataset_dict(**tdd)
+            if pcat.exists_in_cat(id='multiple', processing_level="spatialmean",variable=search_param['variable']):
+                logger.info(f"Skipping existing spatial mean for: {search_param['variable']})")
+                continue
 
             source_datasets = [] # The datasets whose variables have been averaged
 
@@ -404,27 +406,19 @@ if __name__ == "__main__":
             combined_ds = xr.concat(source_datasets, dim="source")
 
             # Setting attributes for the new dataset
-            combined_ds.attrs["cat:processing_level"] = "spatial_mean"
+            combined_ds.attrs["cat:processing_level"] = "spatialmean"
             combined_ds.attrs["cat:source"] = "multiple"
-            combined_ds.attrs["cat:type"] = "mixed"
-            combined_ds.attrs["cat:id"] = xs.catalog.generate_id(combined_ds)[0]
+            combined_ds.attrs["cat:id"] = "multiple"
+            combined_ds.attrs["cat:domain"] = ds_input.attrs["cat:domain"]
             combined_ds.attrs["cat:xrfreq"] = "fx"
+            combined_ds.attrs["cat:variable"]= ds_input.attrs["cat:variable"]
 
             combined_ds = clean_for_zarr(combined_ds)
-
-            # Saving dataset by var
-            for var_name in combined_ds.data_vars:
-                logger.info(f"Saving spatial_mean for variable {var_name}")
-
-                ds_var = combined_ds[[var_name]].copy()
-                ds_var.attrs.update(combined_ds.attrs)
-                ds_var.attrs["cat:variable"] = var_name
-
-                xs.save_and_update(
-                    ds=ds_var,
-                    pcat=pcat,
-                    path=CONFIG['paths']['task']
-                )
+            xs.save_and_update(
+                ds=combined_ds,
+                pcat=pcat,
+                path=CONFIG['paths']['task']
+            )
 
 
 
