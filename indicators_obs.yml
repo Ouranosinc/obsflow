@@ -24,6 +24,24 @@ indicators:
     base: tg_mean
     parameters:
       freq: QS-DEC
+      
+  tn_mean_annual:
+    base: tn_mean
+    parameters:
+      freq: YS-JAN
+  tn_mean_seasonal:
+    base: tn_mean
+    parameters:
+      freq: QS-DEC
+
+  tx_mean_annual:
+    base: tx_mean
+    parameters:
+      freq: YS-JAN
+  tx_mean_seasonal:
+    base: tx_mean
+    parameters:
+      freq: QS-DEC
 # # --------------------------------- Precipitation ------------------------------------#
   pr_mean_annual:
     base: prcpavg

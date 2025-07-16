@@ -1,0 +1,71 @@
+paths:
+  project_catalog: &pcat
+    /PERM/USER/obsflow/pcat_obs.json
+  task: /PERM/USER/obsflow/{processing_level}/{id}_{variable}_{xrfreq}_{processing_level}.zarr
+  performance: /PERM/USER/obsflow/{processing_level}/{id}_{variable}_{xrfreq}_{processing_level}_{performance_base}.zarr 
+  figures: /PERM/USER/obsflow/figures/{processing_level}/{horizon}/{freq}/{file_name}.png
+
+extract:
+  reconstruction:
+    search_data_catalogs:
+      data_catalogs:
+        - /PATH_TO_CATALOG/reconstruction.json # ERA5-Land, RDRS, CaSR, EMDNA
+        - /PATH_TO_PCICBlend/ref-cat.json # PCICBlend
+    extract_dataset:
+      region:
+        shape: &shape
+         ./region_qc/region_qc.shp
+  station-tas:
+    search_data_catalogs:
+      data_catalogs:
+        - /PATH_TO_CATALOG/station-obs.json # AHCCD
+    extract_dataset:
+      region:
+        shape: *shape
+  station-pr:
+    search_data_catalogs:
+      data_catalogs:
+        - /PATH_TO_CATALOG/station-obs.json # AHCCD
+    extract_dataset:
+      region:
+        shape: *shape
+
+regrid:
+  regrid_dataset:
+    weights_location: /TEMP/USER/obsflow/obsflow-wdir/weights/
+
+cleanup:
+  search_data_catalogs:
+    data_catalogs:
+      - *pcat
+
+rechunk:
+  xscen_rechunk:
+    temp_store: /TEMP/USER/obsflow/obsflow-wdir/tmp/
+
+indicators:
+  path_yml: indicators_obs
+
+spatial_mean:
+  region:
+    shape: ./region_admin/region_admin.shp
+
+dask:
+  client:
+    local_directory: /TEMP/USER/obsflow/obsflow-wdir
+    dashboard_address: 1977
+
+
+utils:
+    stack_drop_nans:
+        to_file: &coords
+          /PERM/USER/obsflow/coords/coords_{domain}_{shape}.nc
+    unstack_fill_nan:
+      coords: *coords
+    maybe_unstack:
+      coords: *coords
+
+scripting:
+  send_mail:
+    to: user@email.com
+ 

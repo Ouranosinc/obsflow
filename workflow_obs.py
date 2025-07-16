@@ -17,6 +17,8 @@ from xscen.config import CONFIG
 
 import xsdba
 
+import geopandas as gpd
+
 # Load configuration
 xs.load_config(
     "paths_obs.yml", "config_obs.yml", verbose=(__name__ == "__main__"), reset=True
@@ -57,14 +59,14 @@ if __name__ == "__main__":
             CONFIG["paths"]["project_catalog"],
             project=CONFIG["project"],
         )
+        # add a column to allow searching during performance task
+        pcat.df['performance_base']=[np.nan]*len(pcat.df)
+        pcat.update()
 
     # load project catalog
     pcat = xs.ProjectCatalog(CONFIG["paths"]["project_catalog"])
-    xs.catalog.ID_COLUMNS.append("type")
 
-    # add a column to allow searching during performance task
-    pcat.df['performance_base']=[np.nan]*len(pcat.df)
-    pcat.update()
+
 
     # set some recurrent variables
     if CONFIG.get("to_dataset_dict", False):
@@ -212,11 +214,22 @@ if __name__ == "__main__":
 
                     logger.info(f"Merging climatology of periods for {key_input}")
                     ds_clim = xr.merge([ds.drop_vars('time') for ds in all_horizons], combine_attrs='override')
-                    #TODO: do it by var
-                    xs.save_and_update(ds=ds_clim, pcat=pcat,path=CONFIG['paths']['task'])
+                    
+                    # Saving dataset by var
+                    for var_name in ds_clim.data_vars:
+                        logger.info(f"Saving climatology for variable {var_name}")
+
+                        ds_var = ds_clim[[var_name]].copy()
+                        ds_var.attrs.update(ds_clim.attrs)
+                        ds_var.attrs["cat:variable"] = var_name
+
+                        xs.save_and_update(
+                            ds=ds_var,
+                            pcat=pcat,
+                            path=CONFIG['paths']['task']
+                        )
 
     # --- PERFORMANCE ---
-    performance_path = CONFIG['paths']['performance']
 
     if "performance" in CONFIG["tasks"]:
         for statistic_name, search_param_dicts in CONFIG["performance"]["statistics"].items():
@@ -243,8 +256,9 @@ if __name__ == "__main__":
 
                     for rec_dataset_id, rec_dataset in rec_dict.items(): # For each reconstruction dataset
                         rec_source = rec_dataset.attrs['cat:source']
-                        
-                        if pcat.exists_in_cat(id=rec_dataset_id, processing_level="performance", performance_base=obs_dataset_id):
+                        if pcat.exists_in_cat(id=rec_dataset.attrs["cat:id"], processing_level="performance",
+                                              performance_base=obs_dataset.attrs["cat:id"],
+                                              variable=performance_variable_name):
                             logger.info(f"Skipping existing performance for: {performance_variable_name} ({rec_source} vs {obs_source})")
                             continue
 
@@ -277,14 +291,21 @@ if __name__ == "__main__":
                             drec=xs.utils.unstack_dates(drec)
                             dobs=xs.utils.unstack_dates(obs_dataset)
 
-                            ## Selecting a common time slice, because don't all have the same end date
-                            common_time = np.intersect1d(dobs['time'], drec['time'])
-                            dobs = dobs.sel(time=common_time)
-                            drec = drec.sel(time=common_time)
+                            # Select time period from config
+                            start_year, end_year = CONFIG['performance']['period']
+                            time_slice = slice(str(start_year), str(end_year))
 
-                            #check if stations have a least n years of data, if not fill it with nan
-                            min_years=CONFIG['performance']['minimum_n_years']
-                            dobs = dobs.where((dobs.count(dim='time')>=min_years).compute())
+                            # Apply the time slice to both datasets
+                            dobs = dobs.sel(time=time_slice)
+                            drec = drec.sel(time=time_slice)
+
+                            # Make a mask for stations with at least n years of data
+                            min_years = CONFIG["performance"]["minimum_years"]
+                            valid_mask = (dobs.count(dim='time')>=min_years).compute()
+
+                            # Drop stations that don’t meet the requirement
+                            dobs = dobs.where(valid_mask, drop=True)
+                            drec = drec.where(valid_mask, drop=True)
 
                             # Rechunk both timeseries into a single chunk each
                             dobs = dobs.chunk({"time": -1})
@@ -296,23 +317,110 @@ if __name__ == "__main__":
                                 ref=dobs[variable_name]
                             )
                             ds_output = da_output.to_dataset(name=performance_variable_name) # The output dataset
-                            
-                            ds_output.attrs["cat:xrfreq"]= "fx" # Frequency is fixed, as there is no time axis
+
+                            ds_output.attrs=rec_dataset.attrs # inherit most attrs from the rec input
+                            ds_output.attrs["cat:xrfreq"] = "fx"
                             ds_output.attrs["cat:variable"] = performance_variable_name
                             ds_output.attrs["cat:processing_level"] = "performance"
-                            ds_output.attrs["cat:source"] = rec_source
                             ds_output.attrs["cat:performance_base"] = obs_dataset.attrs["cat:id"]
-                            ds_output.attrs["cat:domain"] = rec_dataset.attrs["cat:domain"]
-                            ds_output.attrs["cat:id"] = xs.catalog.generate_id(ds_output, id_columns=xs.catalog.ID_COLUMNS + ['performance_base'])[0]
+
 
                             del ds_output.station.encoding['filters'] # Existing value in encoding's "filters" breaks "save_and_update"
                             
                             xs.save_and_update(
                                 ds=ds_output,
                                 pcat=pcat,
-                                path=performance_path,
-                                save_kwargs=CONFIG["performance"]["save"]
+                                path=CONFIG['paths']['performance'],
+                                save_kwargs=CONFIG["performance"]["save"],
                             )
+
+
+    # --- SPATIAL MEAN ---
+    if "spatial_mean" in CONFIG["tasks"]:
+        # Getting the regions over which each variable is averaged
+        gdf = gpd.read_file(CONFIG["spatial_mean"]["region"]["shape"])
+        regions = [(gdf[gdf["id"] == row.id], row.name) for row in gdf.itertuples(index=False)]
+
+        for search_param in CONFIG["spatial_mean"]["search_params"]:
+            dict_input = pcat.search(**search_param, processing_level='performance').to_dataset_dict(**tdd)
+            if pcat.exists_in_cat(id='multiple', processing_level="spatialmean",variable=search_param['variable']):
+                logger.info(f"Skipping existing spatial mean for: {search_param['variable']})")
+                continue
+
+            source_datasets = [] # The datasets whose variables have been averaged
+
+            for dataset_id, ds_input in dict_input.items():
+                source_name = ds_input.attrs["cat:source"]
+
+                region_means = [] # The regional averages of variables in the current "source_dataset"
+                for region_shape, region_name in regions:
+                    try: 
+                        ds_sub = xs.spatial.subset(
+                            ds_input,
+                            method="shape",
+                            shape=region_shape,
+                            tile_buffer=0,
+                        )
+                    except ValueError as e:
+                        logger.warning(f"Error subsetting region '{region_name}' for source '{source_name}': {e}")
+                        if "No grid cell centroids found" in str(e):
+                            logger.info(f"Skipping region '{region_name}' for source '{source_name}' - no data found.")
+                            continue
+                        raise
+                    ds_sub = ds_sub.drop_vars("crs", errors="ignore") # Removing Coordinate Reference System info
+
+                    # Compute mean
+                    ds_mean = ds_sub.mean(dim="station", skipna=True)
+                    ds_mean = ds_mean.expand_dims({"region": [region_name]})
+
+                    # Compute count (shared coordinate)
+                    nstation = ds_sub.count(dim="station")
+                    nstation = nstation.expand_dims({"region": [region_name]})
+                    nstation = nstation.to_array().mean("variable")  # collapse across vars if needed
+                    nstation.name = "nstation"
+
+                    # Attach nstation as shared coordinate
+                    for var in ds_mean.data_vars:
+                        ds_mean[var] = ds_mean[var].assign_coords(nstation=nstation)
+
+                    region_means.append(ds_mean)
+
+                if not region_means:
+                    logger.warning(f"No data found in any region for source {source_name}. Skipping.")
+                    continue
+
+                ds_source = xr.concat(region_means, dim="region").expand_dims({"source": [source_name]})
+                source_datasets.append(ds_source)
+
+            if not source_datasets:
+                logger.warning(f"No sources available for search_param {search_param}. Skipping.")
+                continue
+
+            # Keep only common coordinates across all source datasets
+            common_coords = set.intersection(*(set(ds.coords) for ds in source_datasets))
+            source_datasets = [
+                ds.drop_vars(set(ds.coords) - common_coords, errors="ignore")
+                for ds in source_datasets
+            ]
+
+            combined_ds = xr.concat(source_datasets, dim="source")
+
+            # Setting attributes for the new dataset
+            combined_ds.attrs["cat:processing_level"] = "spatialmean"
+            combined_ds.attrs["cat:source"] = "multiple"
+            combined_ds.attrs["cat:id"] = "multiple"
+            combined_ds.attrs["cat:domain"] = ds_input.attrs["cat:domain"]
+            combined_ds.attrs["cat:xrfreq"] = "fx"
+            combined_ds.attrs["cat:variable"]= ds_input.attrs["cat:variable"]
+
+            combined_ds = clean_for_zarr(combined_ds)
+            xs.save_and_update(
+                ds=combined_ds,
+                pcat=pcat,
+                path=CONFIG['paths']['task']
+            )
+
+
 
 
 
