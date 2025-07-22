@@ -330,7 +330,7 @@ if __name__ == "__main__":
                             xs.save_and_update(
                                 ds=ds_output,
                                 pcat=pcat,
-                                path=CONFIG['paths']['performance'],
+                                path=CONFIG['paths']['task'],
                                 save_kwargs=CONFIG["performance"]["save"],
                             )
 
