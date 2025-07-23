@@ -343,7 +343,7 @@ if __name__ == "__main__":
 
         for search_param in CONFIG["spatial_mean"]["search_params"]:
             dict_input = pcat.search(**search_param, processing_level='performance').to_dataset_dict(**tdd)
-            if pcat.exists_in_cat(id='multiple', processing_level="spatialmean",variable=search_param['variable']):
+            if pcat.exists_in_cat(id='multiple', processing_level="spatial_mean",variable=search_param['variable']):
                 logger.info(f"Skipping existing spatial mean for: {search_param['variable']})")
                 continue
 
@@ -406,7 +406,7 @@ if __name__ == "__main__":
             combined_ds = xr.concat(source_datasets, dim="source")
 
             # Setting attributes for the new dataset
-            combined_ds.attrs["cat:processing_level"] = "spatialmean"
+            combined_ds.attrs["cat:processing_level"] = "spatial_mean"
             combined_ds.attrs["cat:source"] = "multiple"
             combined_ds.attrs["cat:id"] = "multiple"
             combined_ds.attrs["cat:domain"] = ds_input.attrs["cat:domain"]
