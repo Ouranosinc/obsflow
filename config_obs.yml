@@ -206,9 +206,12 @@ coherence:  # ------------------------------------- Coherence ------------------
     threads_per_worker: 4
     memory_limit: "8GB"
   inputs:
-    - variable: [tg_mean_annual]
-      type: reconstruction
-      source: ["EMDNA","CaSR","ERA5-Land","PCICBlend","RDRS"]
+    - type: reconstruction
+      processing_level: climatology
+      variable: ["tg_mean_annual_clim_mean", "pr_mean_annual_clim_mean"]
+    - type: reconstruction
+      processing_level: climatology
+      variable: ["tg_mean_seasonal_clim_mean", "pr_mean_seasonal_clim_mean"]
 
 
 # General Arguments
