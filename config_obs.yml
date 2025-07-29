@@ -205,13 +205,16 @@ coherence:  # ------------------------------------- Coherence ------------------
     n_workers: 4
     threads_per_worker: 4
     memory_limit: "8GB"
-  inputs:
-    - type: reconstruction
-      processing_level: climatology
-      variable: ["tg_mean_annual_clim_mean", "pr_mean_annual_clim_mean"]
-    - type: reconstruction
-      processing_level: climatology
-      variable: ["tg_mean_seasonal_clim_mean", "pr_mean_seasonal_clim_mean"]
+  search_params:
+    - variable: "tg_mean_annual_clim_mean"
+      type: &type reconstruction
+    - variable: "pr_mean_annual_clim_mean"
+      type: *type
+    - variable: "tg_mean_seasonal_clim_mean"
+      type: *type
+    - variable: "pr_mean_seasonal_clim_mean"
+      type: *type
+
 
 
 # General Arguments
