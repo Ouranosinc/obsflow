@@ -443,36 +443,30 @@ if __name__ == "__main__":
     # --- COHERENCE ---
     if "coherence" in CONFIG["tasks"]:
         logger.info("Started coherence task")
-        for search_param_dict in CONFIG["coherence"]["inputs"]:
+        for search_param_dict in CONFIG["coherence"]["search_params"]:
             logger.info(f"Checking: {search_param_dict}")
             ds_dict = pcat.search(**search_param_dict).to_dataset_dict()
 
-            # Get the variables common to all datasets
-            var_lists = {name: set(ds.data_vars) for name, ds in ds_dict.items()}
-            shared_vars = set.intersection(*var_lists.values())
-
-            # Construct source and variable strings
+            # Construct sources string
             sources = '-'.join(sorted(ds.attrs["cat:source"] for ds in ds_dict.values()))
-            variable_string = '-'.join(sorted(shared_vars))
 
+            variable = search_param_dict["variable"]
+            
             # Check if this coherence dataset already exists
             if pcat.exists_in_cat(
                 id="multiple",
                 processing_level="coherence",
                 source=sources,
-                variable=search_param_dict["variable"]
+                variable=variable
             ):
                 logger.info(f"Skipping: {search_param_dict}")
                 continue
-
+            
             spatial_means = []
 
             for name, ds in ds_dict.items():
-                ds = ds[list(shared_vars)]
-
                 # Clean variable attributes
-                for var in shared_vars:
-                    ds[var].attrs.pop("grid_mapping", None)
+                ds[variable].attrs.pop("grid_mapping", None)
 
                 # Compute spatial mean
                 ds_spatial_mean = xs.aggregate.spatial_mean(
@@ -487,11 +481,6 @@ if __name__ == "__main__":
 
                 # Source name
                 src = ds_spatial_mean.attrs.get("cat:source", name)
-
-                # Remove global and variable-level attrs to avoid concat conflicts
-                ds_spatial_mean.attrs = {}
-                for var in shared_vars:
-                    ds_spatial_mean[var].attrs = {}
 
                 spatial_means.append(ds_spatial_mean.expand_dims(source=[src]))
 
@@ -510,7 +499,7 @@ if __name__ == "__main__":
                 "cat:source": sources,
                 "cat:id": "multiple",
                 "cat:xrfreq": "fx",
-                "cat:variable": variable_string,
+                "cat:variable": variable,
             })
 
             ds_std = clean_for_zarr(ds_std)
