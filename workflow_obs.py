@@ -451,27 +451,6 @@ if __name__ == "__main__":
             var_lists = {name: set(ds.data_vars) for name, ds in ds_dict.items()}
             shared_vars = set.intersection(*var_lists.values())
 
-            #############################################
-            # This part can be deleted if we'll never leave the "variable" key empty in the config,
-            # in order for all variables to get included in the calculation
-            if not shared_vars:
-                raise ValueError(f"No shared variables across datasets: {search_param_dict}")
-
-            # Check if there are any discrepancies in the variables between datasets
-            mismatch = {
-                name: sorted(list(vars_ - shared_vars))
-                for name, vars_ in var_lists.items()
-                if vars_ != shared_vars
-            }
-            if mismatch:
-                details = "\n".join(f"- {name} is missing: {missing}" for name, missing in mismatch.items())
-                raise ValueError(
-                    f"Datasets do not contain identical variables.\n"
-                    f"Only shared variables: {sorted(shared_vars)}\n"
-                    f"Missing variables by dataset:\n{details}"
-                )
-            #############################################
-
             # Construct source and variable strings
             sources = '-'.join(sorted(ds.attrs["cat:source"] for ds in ds_dict.values()))
             variable_string = '-'.join(sorted(shared_vars))
@@ -504,8 +483,7 @@ if __name__ == "__main__":
                 )
 
                 # Drop bounds if present (additional information on lat,lon and/or rlat,rlon)
-                if "bounds" in ds_spatial_mean.dims:
-                    ds_spatial_mean = ds_spatial_mean.drop_dims("bounds")
+                ds_spatial_mean = ds_spatial_mean.drop_dims("bounds", errors="ignore")
 
                 # Source name
                 src = ds_spatial_mean.attrs.get("cat:source", name)
@@ -520,15 +498,20 @@ if __name__ == "__main__":
             # Concatenate across sources
             ds_all = xr.concat(spatial_means, dim="source")
 
+            # Set region dimension to use region names instead of integer indices
+            ds_all = ds_all.assign_coords(region=("region", ds_all["name"].values))
+
             # Compute Standard Deviation between the sources
             ds_std = ds_all.std(dim="source").compute()
 
             # Set attributes
-            ds_std.attrs["cat:processing_level"] = "coherence"
-            ds_std.attrs["cat:source"] = sources
-            ds_std.attrs["cat:id"] = "multiple"
-            ds_std.attrs["cat:xrfreq"] = "fx"
-            ds_std.attrs["cat:variable"] = variable_string
+            ds_std.attrs.update({
+                "cat:processing_level": "coherence",
+                "cat:source": sources,
+                "cat:id": "multiple",
+                "cat:xrfreq": "fx",
+                "cat:variable": variable_string,
+            })
 
             ds_std = clean_for_zarr(ds_std)
             xs.save_and_update(
