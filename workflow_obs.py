@@ -18,6 +18,7 @@ from xscen.config import CONFIG
 import xsdba
 
 import geopandas as gpd
+from shapely import Polygon, MultiPolygon
 
 # Load configuration
 xs.load_config(
@@ -40,6 +41,27 @@ def clean_for_zarr(ds: xr.Dataset) -> xr.Dataset:
                 ds[var] = da.chunk({dim: -1 for dim in da.dims})
 
     return ds
+
+# Load region file
+gdf = gpd.read_file(CONFIG["regional_mean"]["region"]["shape"])
+
+def _remove_small_parts(geom, minarea):
+    def p(p):
+        holes = [i for i in p.interiors if i.area >= minarea]
+        return Polygon(shell=p.exterior, holes=holes)
+
+    def mp(mp):
+        return MultiPolygon([p(i) for i in mp.geoms if i.area >= minarea])
+
+    if isinstance(geom, Polygon):
+        return p(geom)
+    elif isinstance(geom, MultiPolygon):
+        return mp(geom)
+    else:
+        return geom
+
+# Adjusting shapes for xs.aggregate.spatial_mean
+gdf["geometry"] = gdf.geometry.apply(_remove_small_parts, minarea=0.001).simplify(tolerance=0.01).buffer(0).segmentize(1)
 
 if __name__ == "__main__":
     # set dask  configuration
@@ -330,21 +352,19 @@ if __name__ == "__main__":
                             xs.save_and_update(
                                 ds=ds_output,
                                 pcat=pcat,
-                                path=CONFIG['paths']['performance'],
+                                path=CONFIG['paths']['task'],
                                 save_kwargs=CONFIG["performance"]["save"],
                             )
 
 
-    # --- SPATIAL MEAN ---
-    if "spatial_mean" in CONFIG["tasks"]:
-        # Getting the regions over which each variable is averaged
-        gdf = gpd.read_file(CONFIG["spatial_mean"]["region"]["shape"])
+    # --- REGIONAL MEAN ---
+    if "regional_mean" in CONFIG["tasks"]:
         regions = [(gdf[gdf["id"] == row.id], row.name) for row in gdf.itertuples(index=False)]
 
-        for search_param in CONFIG["spatial_mean"]["search_params"]:
+        for search_param in CONFIG["regional_mean"]["search_params"]:
             dict_input = pcat.search(**search_param, processing_level='performance').to_dataset_dict(**tdd)
-            if pcat.exists_in_cat(id='multiple', processing_level="spatialmean",variable=search_param['variable']):
-                logger.info(f"Skipping existing spatial mean for: {search_param['variable']})")
+            if pcat.exists_in_cat(id='multiple', processing_level="regional_mean",variable=search_param['variable']):
+                logger.info(f"Skipping existing regional mean for: {search_param['variable']})")
                 continue
 
             source_datasets = [] # The datasets whose variables have been averaged
@@ -406,7 +426,7 @@ if __name__ == "__main__":
             combined_ds = xr.concat(source_datasets, dim="source")
 
             # Setting attributes for the new dataset
-            combined_ds.attrs["cat:processing_level"] = "spatialmean"
+            combined_ds.attrs["cat:processing_level"] = "regional_mean"
             combined_ds.attrs["cat:source"] = "multiple"
             combined_ds.attrs["cat:id"] = "multiple"
             combined_ds.attrs["cat:domain"] = ds_input.attrs["cat:domain"]
@@ -416,6 +436,75 @@ if __name__ == "__main__":
             combined_ds = clean_for_zarr(combined_ds)
             xs.save_and_update(
                 ds=combined_ds,
+                pcat=pcat,
+                path=CONFIG['paths']['task']
+            )
+
+    # --- COHERENCE ---
+    if "coherence" in CONFIG["tasks"]:
+        logger.info("Started coherence task")
+        for search_param_dict in CONFIG["coherence"]["search_params"]:
+            logger.info(f"Checking: {search_param_dict}")
+            ds_dict = pcat.search(**search_param_dict).to_dataset_dict()
+
+            # Construct sources string
+            sources = '-'.join(sorted(ds.attrs["cat:source"] for ds in ds_dict.values()))
+
+            variable = search_param_dict["variable"]
+            
+            # Check if this coherence dataset already exists
+            if pcat.exists_in_cat(
+                id="multiple",
+                processing_level="coherence",
+                source=sources,
+                variable=variable
+            ):
+                logger.info(f"Skipping: {search_param_dict}")
+                continue
+            
+            spatial_means = []
+
+            for name, ds in ds_dict.items():
+                # Clean variable attributes
+                ds[variable].attrs.pop("grid_mapping", None)
+
+                # Compute spatial mean
+                ds_spatial_mean = xs.aggregate.spatial_mean(
+                    ds,
+                    method="xesmf",
+                    region={"method": "shape", "shape": gdf},
+                    kwargs={"skipna": True, "geom_dim_name": "region"},
+                )
+
+                # Drop bounds if present (additional information on lat,lon and/or rlat,rlon)
+                ds_spatial_mean = ds_spatial_mean.drop_dims("bounds", errors="ignore")
+
+                # Source name
+                src = ds_spatial_mean.attrs.get("cat:source", name)
+
+                spatial_means.append(ds_spatial_mean.expand_dims(source=[src]))
+
+            # Concatenate across sources
+            ds_all = xr.concat(spatial_means, dim="source")
+
+            # Set region dimension to use region names instead of integer indices
+            ds_all = ds_all.assign_coords(region=("region", ds_all["name"].values))
+
+            # Compute Standard Deviation between the sources
+            ds_std = ds_all.std(dim="source").compute()
+
+            # Set attributes
+            ds_std.attrs.update({
+                "cat:processing_level": "coherence",
+                "cat:source": sources,
+                "cat:id": "multiple",
+                "cat:xrfreq": "fx",
+                "cat:variable": variable,
+            })
+
+            ds_std = clean_for_zarr(ds_std)
+            xs.save_and_update(
+                ds=ds_std,
                 pcat=pcat,
                 path=CONFIG['paths']['task']
             )

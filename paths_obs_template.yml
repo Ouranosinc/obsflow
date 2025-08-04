@@ -46,7 +46,7 @@ rechunk:
 indicators:
   path_yml: indicators_obs
 
-spatial_mean:
+regional_mean:
   region:
     shape: ./region_admin/region_admin.shp
 
