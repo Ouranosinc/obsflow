@@ -473,11 +473,9 @@ if __name__ == "__main__":
                     ds,
                     method="xesmf",
                     region={"method": "shape", "shape": gdf},
-                    kwargs={"skipna": True, "geom_dim_name": "region"},
+                    kwargs={"skipna": True},
                 )
-
-                # Drop bounds if present (additional information on lat,lon and/or rlat,rlon)
-                ds_spatial_mean = ds_spatial_mean.drop_dims("bounds", errors="ignore")
+                ds_spatial_mean.rename({"geom": "region"}) # TODO: once xscen updates, remove this line and add {"geom_dim_name": "region"} in the kwargs dict
 
                 # Source name
                 src = ds_spatial_mean.attrs.get("cat:source", name)
