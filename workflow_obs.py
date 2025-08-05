@@ -477,6 +477,9 @@ if __name__ == "__main__":
                 )
                 ds_spatial_mean.rename({"geom": "region"}) # TODO: once xscen updates, remove this line and add {"geom_dim_name": "region"} in the kwargs dict
 
+                # Drop bounds if present (additional information on lat,lon and/or rlat,rlon)
+                ds_spatial_mean = ds_spatial_mean.drop_dims("bounds", errors="ignore")
+
                 # Source name
                 src = ds_spatial_mean.attrs.get("cat:source", name)
 
