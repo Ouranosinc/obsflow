@@ -123,6 +123,11 @@ if __name__ == "__main__":
                         ds.attrs["cat:type"] = source_type
                         ds.attrs["cat:id"] = f'{ds_id}_{source_type}'
                         
+                        # Renaming sources
+                        source_remap = type_dict.get("source_renaming", {})
+                        source_val = ds.attrs.get("cat:source")
+                        if source_val in source_remap:
+                            ds.attrs["cat:source"] = source_remap[source_val]
 
                         xs.save_and_update(ds=ds, pcat=pcat, path=CONFIG['paths']['task'], save_kwargs=type_dict["save"])
 

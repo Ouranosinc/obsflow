@@ -44,6 +44,9 @@ extract:  # ------------------------------------- Extraction -------------------
           - CaSR
           - EMDNA
           - PCICBlend
+    source_renaming:
+      RDRS: CaSR v2.1
+      CaSR: CaSR v3.1
     extract_dataset: &extract
       region: 
         name: Quebec
