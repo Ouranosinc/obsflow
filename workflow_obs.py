@@ -496,21 +496,18 @@ if __name__ == "__main__":
             # Set region dimension to use region names instead of integer indices
             ds_all = ds_all.assign_coords(region=("region", ds_all["name"].values))
 
-            # Compute Standard Deviation between the sources
-            ds_std = ds_all.std(dim="source").compute()
-
             # Set attributes
-            ds_std.attrs.update({
+            ds_all.attrs.update({
                 "cat:processing_level": "coherence",
-                "cat:source": sources,
+                "cat:source": "multiple",
                 "cat:id": "multiple",
                 "cat:xrfreq": "fx",
                 "cat:variable": variable,
             })
 
-            ds_std = clean_for_zarr(ds_std)
+            ds_all = clean_for_zarr(ds_all)
             xs.save_and_update(
-                ds=ds_std,
+                ds=ds_all,
                 pcat=pcat,
                 path=CONFIG['paths']['task']
             )
