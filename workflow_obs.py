@@ -452,16 +452,13 @@ if __name__ == "__main__":
             logger.info(f"Checking: {search_param_dict}")
             ds_dict = pcat.search(**search_param_dict).to_dataset_dict()
 
-            # Construct sources string
-            sources = '-'.join(sorted(ds.attrs["cat:source"] for ds in ds_dict.values()))
-
             variable = search_param_dict["variable"]
             
             # Check if this coherence dataset already exists
             if pcat.exists_in_cat(
                 id="multiple",
+                source="multiple",
                 processing_level="coherence",
-                source=sources,
                 variable=variable
             ):
                 logger.info(f"Skipping: {search_param_dict}")
