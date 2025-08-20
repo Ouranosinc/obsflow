@@ -395,7 +395,7 @@ if __name__ == "__main__":
                     ds_sub = ds_sub.drop_vars("crs", errors="ignore") # Removing Coordinate Reference System info
 
                     # Compute mean
-                    ds_mean = ds_sub.mean(dim="station", skipna=True)
+                    ds_mean = ds_sub.mean(dim="station", skipna=True, keep_attrs=True)
                     ds_mean = ds_mean.expand_dims({"region": [region_name]})
 
                     # Compute count (shared coordinate)
@@ -477,6 +477,9 @@ if __name__ == "__main__":
                     region={"method": "shape", "shape": gdf},
                     kwargs={"skipna": True},
                 )
+
+                ds_spatial_mean[variable].attrs = ds[variable].attrs.copy() # Copy over the attributes from the original data array (units, etc)
+
                 ds_spatial_mean = ds_spatial_mean.rename({"geom": "region"}) # TODO: once xscen updates, remove this line and add {"geom_dim_name": "region"} in the kwargs dict
 
                 # Drop bounds if present (additional information on lat,lon and/or rlat,rlon)
