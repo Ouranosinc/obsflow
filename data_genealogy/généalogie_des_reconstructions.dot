@@ -1,14 +1,37 @@
-digraph ClimatologyDatasets {
+digraph Combined {
     rankdir=TB;
-    node [shape=box style=filled fontname="Helvetica" fontsize=10 width=1.2];
+    labelloc=top;
+    fontsize=16;
 
-    // REANALYSES
+    node [shape=box style=filled fontname="Helvetica" fontsize=10];
+
+    // ===== PCIC-Blend Nodes =====
+    AHCCD [label="AHCCD\n(Adj. & Homog.\nCanadian Climate Data)", shape=parallelogram, fillcolor="#fff2cc"];
+    GHCN [label="GHCN-Daily", shape=parallelogram, fillcolor="#fff2cc"];
+    USHCN [label="USHCN-Daily", shape=parallelogram, fillcolor="#fff2cc"];
+    CR20 [label="20CR2 Reanalysis\n(Virtual Stations)", shape=parallelogram, fillcolor="#fff2cc"];
+    ClimateWNA [label="ClimateWNA Normals\n(Elev., Lapse Rate,\nDist. to Coast)", shape=parallelogram, fillcolor="#ffe599"];
+    ECCC_Raw_Data [label="ECCC National Climate\nData Archive\n(Raw Daily Precip.)", shape=parallelogram, fillcolor="#fff2cc"];
+
+    ANUSPLIN [label="ANUSPLIN\n(Thin-Plate Spline Interp.)", fillcolor="#fce5cd"];
+    TPS_PNWNA [label="Thin-Plate Splines\n(PNWNAmet)", fillcolor="#fce5cd"];
+    TPS_NRCAN [label="Thin-Plate Splines\n(NRCANmet V2)", fillcolor="#fce5cd"];
+    PREP_ADJ [label="Precip Adjustments\n• SWE Conversion\n• Undercatch/Wetting Loss\n• Trace Handling\n• Data Flag Treatment\n(Output: AdjDlyRS dataset)", fillcolor="#fce5cd"];
+
+    PNWNAmet [label="PNWNAmet\nDomain: 40–72°N, 169–101°W\nResolution: 0.0625° (~6 km)\nTimestep: Daily", fillcolor="#c9daf8"];
+    NRCAN_V2 [label="NRCANmet V2\nDomain: Canada\nResolution: 0.0833° (~10 km)\nTimestep: Daily", fillcolor="#c9daf8"];
+    NRCAN_ADJ [label="NRCANmet-Adjusted\nDomain: Canada\nResolution: 10 km (daily/pentad)\n2 km (monthly)\nTimestep: Daily/Pentad/Monthly", fillcolor="#c9daf8"];
+
+    Blend [label="Blending / Transition Zone\nSigmoidal weighting across Rockies\nWest ↔ East merge by variable", fillcolor="#fce5cd", shape=box];
+
+    PCIC [label="PCIC-Blend\n\nDomain: Northwestern North America\n(40–72°N, 169–101°W)\nGrid: Native inputs blended\nTimestep: Daily\nVars: pr, tasmax, tasmin\nMethod: Variable-specific blend", fillcolor="#b6d7a8", shape=hexagon];
+
+    // ===== Reconstruction Nodes =====
     ERA5 [label="ERA5\n(31 km, 4D-Var reanalysis)", fillcolor="#cfe2f3"];
     MERRA2 [label="MERRA-2", fillcolor="#cfe2f3"];
     JRA55 [label="JRA-55", fillcolor="#cfe2f3"];
     ERAInt [label="ERA-Interim", fillcolor="#cfe2f3"];
 
-    // OBSERVATIONS
     SYNOP [label="SYNOP\n(Surface Obs)", shape=parallelogram, fillcolor="#fff2cc"];
     METAR [label="METAR\n(Aviation Obs)", shape=parallelogram, fillcolor="#fff2cc"];
     SWOB [label="SWOB\n(Snow Obs)", shape=parallelogram, fillcolor="#fff2cc"];
@@ -22,7 +45,6 @@ digraph ClimatologyDatasets {
     GNSS [label="GNSS-RO\n(Satellite Occultation)", shape=parallelogram, fillcolor="#fff2cc"];
     SAT [label="Satellite Radiances\n(AMSU, IASI, etc.)", shape=parallelogram, fillcolor="#fff2cc"];
 
-    // BIAS CORRECTION
     GRDC [label="GRDC\nStreamflow", shape=parallelogram, fillcolor="#ffe599"];
     USGS [label="USGS\nStreamflow", shape=parallelogram, fillcolor="#ffe599"];
     HYDAT [label="HYDAT\nStreamflow (Canada)", shape=parallelogram, fillcolor="#ffe599"];
@@ -31,11 +53,9 @@ digraph ClimatologyDatasets {
 
     Static [label="Static Inputs\n• GLOBCOVER\n• MODIS albedo & LAI\n• FAO Soil\n• GLCC Land Cover", shape=parallelogram, fillcolor="#fff2cc"];
 
-    // ASSIMILATION MODULES
     CaPA [label="CaPA\n(Precip Assimilation)", shape=parallelogram, fillcolor="#f9cb9c"];
     CaLDAS [label="CaLDAS\n(Soil Moisture/Snow DA)", shape=parallelogram, fillcolor="#f9cb9c"];
 
-    // MODELS AND PROCESSING
     GDRS [label="GDRS\nGlobal Dynamical Downscaling", fillcolor="#c9daf8"];
     RDRS [label="RDRS\nRegional Downscaling", fillcolor="#c9daf8"];
     BMA [label="Bayesian Model Averaging\n(Merged Reanalyses)", fillcolor="#fce5cd"];
@@ -45,14 +65,36 @@ digraph ClimatologyDatasets {
     ISBA [label="ISBA\nSurface Scheme", fillcolor="#d9d2e9"];
     StatGen [label="Statistical Generator\n(Parametric/Box-Cox, etc.)", fillcolor="#ead1dc"];
 
-    // FINAL DATASETS
-    ERA5_Land [label="ERA5-Land\n\nDomain: Global land\nResolution: 9 km\nTimestep: Hourly\nPeriod: 1981–present\nAssimilation: No\nModel: Offline\nEnsemble: Deterministic\nOutputs: soil temp/moisture, runoff, snow, fluxes", fillcolor="#b6d7a8"];
+    ERA5_Land [label="ERA5-Land\n\nDomain: Global land\nResolution: 9 km\nTimestep: Hourly\nPeriod: 1981–present\nAssimilation: No\nModel: Offline\nEnsemble: Deterministic\nOutputs: soil temp/moisture, runoff, snow, fluxes", shape=hexagon, fillcolor="#b6d7a8"];
 
-    CaSR [label="CaSR (RDRS v2.1)\n\nDomain: North America\nResolution: 10 km\nTimestep: Hourly\nPeriod: 1980–2018\nAssimilation: CaPA (precip), CaLDAS (soil/snow)\nModel: Online\nEnsemble: Deterministic\nOutputs: precip, snow, soil state, energy fluxes", fillcolor="#9fc5e8"];
+    CaSR [label="CaSR (RDRS v2.1)\n\nDomain: North America\nResolution: 10 km\nTimestep: Hourly\nPeriod: 1980–2018\nAssimilation: CaPA (precip), CaLDAS (soil/snow)\nModel: Online\nEnsemble: Deterministic\nOutputs: precip, snow, soil state, energy fluxes", shape=hexagon, fillcolor="#9fc5e8"];
 
     EMDNA [label="EMDNA\n\nDomain: Canada + border regions\nResolution: 0.1° (~10 km)\nTimestep: Daily\nPeriod: 1979–2018\nAssimilation: BMA + OI\nModel: Offline\nEnsemble: 100 members\nOutputs: Precip, Tmean, Trange, PoP", shape=hexagon, fillcolor="#f9cb9c"];
 
-    // CONNECTIONS
+    // ===== PCIC-Blend Connections =====
+    ECCC_Raw_Data -> PREP_ADJ;
+    AHCCD -> PNWNAmet;
+    USHCN -> PNWNAmet;
+    GHCN -> PNWNAmet;
+    CR20 -> PNWNAmet [style=dashed, label="virtual stations"];
+    AHCCD -> NRCAN_V2;
+    ClimateWNA -> PNWNAmet;
+    ClimateWNA -> NRCAN_V2;
+    PREP_ADJ -> ANUSPLIN;
+    ANUSPLIN -> NRCAN_ADJ;
+    TPS_PNWNA -> PNWNAmet;
+    TPS_NRCAN -> NRCAN_V2;
+    PNWNAmet -> Blend [label="pr, tasmax, tasmin\n(west)"];
+    NRCAN_ADJ -> Blend [label="pr (east)"];
+    NRCAN_V2 -> Blend [label="tasmax, tasmin (east)"];
+    Blend -> PCIC;
+
+    { rank=same; AHCCD; GHCN; USHCN; CR20; ClimateWNA; ECCC_Raw_Data }
+    { rank=same; ANUSPLIN; TPS_PNWNA; TPS_NRCAN; PREP_ADJ }
+    { rank=same; PNWNAmet; NRCAN_V2; NRCAN_ADJ }
+    { rank=same; Blend }
+
+    // ===== Reconstruction Connections =====
     RDRS -> CaPA [label="Background precip fields", style=dashed];
     RDRS -> CaLDAS [label="Regional forcing", style=dashed];
     CaLDAS -> RDRS [label="Soil/snow states", style=dashed];
@@ -60,7 +102,7 @@ digraph ClimatologyDatasets {
     Static -> ERA5_Land [label="Surface params", style=dashed];
     CHTESSEL -> ERA5_Land [label="Land model", style=solid];
 
-    ERAInt -> GDRS [label="Init forcing", style=solid];
+    ERAInt -> GDRS [label="Initial forcing", style=solid];
     GDRS -> RDRS [label="Regional model", style=solid];
     RDRS -> GEM [style=solid];
     RDRS -> ISBA [style=solid];
@@ -83,14 +125,12 @@ digraph ClimatologyDatasets {
     OI -> StatGen [label="PDF params (µ, σ, PoP)", style=solid];
     StatGen -> EMDNA [label="100 ensemble members", style=solid];
 
-    // Observations to Assimilation
     SYNOP -> CaPA [style=dashed];
     METAR -> CaPA [style=dashed];
     SWOB -> CaLDAS [style=dashed];
     AdjDlyRS -> CaPA [style=dashed];
     SCDNA -> EMDNA [style=solid];
 
-    // ERA5 Observations
     SYNOP -> ERA5 [style=dashed];
     SHIP -> ERA5 [style=dashed];
     PILOT -> ERA5 [style=dashed];
@@ -99,20 +139,11 @@ digraph ClimatologyDatasets {
     GNSS -> ERA5 [style=dashed];
     SAT -> ERA5 [style=dashed];
 
-    // TIERED RANKS FOR VERTICAL LAYOUT (MODIFIED)
     { rank=same; GRDC; USGS; HYDAT }
-    { rank=same; ERA5; MERRA2; JRA55; ERAInt }
     { rank=same; SCDNA; Static; CaPA; CaLDAS }
     { rank=same; CHELSA; PBCOR }
-    { rank=same; SHIP; PILOT; AIREP; TEMP; GNSS; SAT }
-    { rank=same; SYNOP; METAR; SWOB; AdjDlyRS }
     { rank=same; GDRS; BMA }
     { rank=same; RDRS; OI }
     { rank=same; CHTESSEL; GEM; ISBA; StatGen }
-    { rank=same; ERA5_Land; CaSR; EMDNA }
-
-    label="Reconstruction dataset summary";
-    labelloc=top;
-    fontsize=14;
+    { rank=same; ERA5_Land; CaSR; EMDNA; PCIC }
 }
-

@@ -123,6 +123,11 @@ if __name__ == "__main__":
                         ds.attrs["cat:type"] = source_type
                         ds.attrs["cat:id"] = f'{ds_id}_{source_type}'
                         
+                        # Renaming sources
+                        source_remap = type_dict.get("source_renaming", {})
+                        source_val = ds.attrs.get("cat:source")
+                        if source_val in source_remap:
+                            ds.attrs["cat:source"] = source_remap[source_val]
 
                         xs.save_and_update(ds=ds, pcat=pcat, path=CONFIG['paths']['task'], save_kwargs=type_dict["save"])
 
@@ -390,7 +395,7 @@ if __name__ == "__main__":
                     ds_sub = ds_sub.drop_vars("crs", errors="ignore") # Removing Coordinate Reference System info
 
                     # Compute mean
-                    ds_mean = ds_sub.mean(dim="station", skipna=True)
+                    ds_mean = ds_sub.mean(dim="station", skipna=True, keep_attrs=True)
                     ds_mean = ds_mean.expand_dims({"region": [region_name]})
 
                     # Compute count (shared coordinate)
@@ -447,16 +452,13 @@ if __name__ == "__main__":
             logger.info(f"Checking: {search_param_dict}")
             ds_dict = pcat.search(**search_param_dict).to_dataset_dict()
 
-            # Construct sources string
-            sources = '-'.join(sorted(ds.attrs["cat:source"] for ds in ds_dict.values()))
-
             variable = search_param_dict["variable"]
             
             # Check if this coherence dataset already exists
             if pcat.exists_in_cat(
                 id="multiple",
+                source="multiple",
                 processing_level="coherence",
-                source=sources,
                 variable=variable
             ):
                 logger.info(f"Skipping: {search_param_dict}")
@@ -473,8 +475,12 @@ if __name__ == "__main__":
                     ds,
                     method="xesmf",
                     region={"method": "shape", "shape": gdf},
-                    kwargs={"skipna": True, "geom_dim_name": "region"},
+                    kwargs={"skipna": True},
                 )
+
+                ds_spatial_mean[variable].attrs = ds[variable].attrs.copy() # Copy over the attributes from the original data array (units, etc)
+
+                ds_spatial_mean = ds_spatial_mean.rename({"geom": "region"}) # TODO: once xscen updates, remove this line and add {"geom_dim_name": "region"} in the kwargs dict
 
                 # Drop bounds if present (additional information on lat,lon and/or rlat,rlon)
                 ds_spatial_mean = ds_spatial_mean.drop_dims("bounds", errors="ignore")
@@ -490,21 +496,18 @@ if __name__ == "__main__":
             # Set region dimension to use region names instead of integer indices
             ds_all = ds_all.assign_coords(region=("region", ds_all["name"].values))
 
-            # Compute Standard Deviation between the sources
-            ds_std = ds_all.std(dim="source").compute()
-
             # Set attributes
-            ds_std.attrs.update({
+            ds_all.attrs.update({
                 "cat:processing_level": "coherence",
-                "cat:source": sources,
+                "cat:source": "multiple",
                 "cat:id": "multiple",
                 "cat:xrfreq": "fx",
                 "cat:variable": variable,
             })
 
-            ds_std = clean_for_zarr(ds_std)
+            ds_all = clean_for_zarr(ds_all)
             xs.save_and_update(
-                ds=ds_std,
+                ds=ds_all,
                 pcat=pcat,
                 path=CONFIG['paths']['task']
             )
