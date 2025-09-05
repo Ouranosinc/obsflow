@@ -24,7 +24,6 @@ indicators:
     base: tg_mean
     parameters:
       freq: QS-DEC
-      
   tn_mean_annual:
     base: tn_mean
     parameters:
@@ -33,7 +32,6 @@ indicators:
     base: tn_mean
     parameters:
       freq: QS-DEC
-
   tx_mean_annual:
     base: tx_mean
     parameters:
@@ -51,3 +49,258 @@ indicators:
     base: prcpavg
     parameters:
       freq: QS-DEC
+    # # --------------------------------- portraits ------------------------------------#
+  tx_max_annual:
+    base: tx_max
+    parameters:
+      freq: YS-JAN
+  tx_max_seasonal:
+    base: tx_max
+    parameters:
+      freq: QS-DEC
+  tx_mean_annual:
+    base: tx_mean
+    parameters:
+      freq: YS-JAN
+  tx_mean_seasonal:
+    base: tx_mean
+    parameters:
+      freq: QS-DEC
+  tn_mean_annual:
+    base: tn_mean
+    parameters:
+      freq: YS-JAN
+  tn_mean_seasonal:
+    base: tn_mean
+    parameters:
+      freq: QS-DEC
+  tn_min_annual:
+    base: tn_min
+    parameters:
+      freq: YS-JAN
+  tn_min_seasonal:
+    base: tn_min
+    parameters:
+      freq: QS-DEC
+  dlyfrzthw_annual:
+    base: dlyfrzthw
+    parameters:
+      freq: YS-JAN
+  dlyfrzthw_seasonal:
+    base: dlyfrzthw
+    parameters:
+      freq: QS-DEC
+  heat_spell_total_length_class1:
+    base: heat_spell_total_length
+    parameters:
+      resample_before_rl: False
+      thresh_tasmin: 20 degC
+      thresh_tasmax: 33 degC
+      window: 3
+      min_gap: 3
+      win_reducer: mean
+      freq: YS-JAN
+    keywords: rolling
+  heat_spell_total_length_class2:
+    base: heat_spell_total_length
+    parameters:
+      resample_before_rl: False
+      thresh_tasmin: 18 degC
+      thresh_tasmax: 31 degC
+      window: 3
+      min_gap: 3
+      win_reducer: mean
+      freq: YS-JAN
+    keywords: rolling
+  heat_spell_total_length_class3:
+    base: heat_spell_total_length
+    parameters:
+      resample_before_rl: False
+      thresh_tasmin: 16 degC
+      thresh_tasmax: 31 degC
+      window: 3
+      min_gap: 3
+      win_reducer: mean
+      freq: YS-JAN
+    keywords: rolling
+  heat_spell_frequency_class1:
+    base: heat_spell_frequency
+    parameters:
+      resample_before_rl: False
+      thresh_tasmin: 20 degC
+      thresh_tasmax: 33 degC
+      window: 3
+      min_gap: 3
+      win_reducer: mean
+      freq: YS-JAN
+    keywords: rolling
+  heat_spell_frequency_class2:
+    base: heat_spell_frequency
+    parameters:
+      resample_before_rl: False
+      thresh_tasmin: 18 degC
+      thresh_tasmax: 31 degC
+      window: 3
+      min_gap: 3
+      win_reducer: mean
+      freq: YS-JAN
+    keywords: rolling
+  heat_spell_frequency_class3:
+    base: heat_spell_frequency
+    parameters:
+      resample_before_rl: False
+      thresh_tasmin: 16 degC
+      thresh_tasmax: 31 degC
+      window: 3
+      min_gap: 3
+      win_reducer: mean
+      freq: YS-JAN
+    keywords: rolling
+  tn_days_above_0_seasonal:
+    base: tn_days_above
+    parameters:
+      thresh: 0 degC
+      freq: QS-DEC
+  tn_days_below_m25_seasonal:
+    base: tn_days_below
+    parameters:
+      thresh: -25 degC
+      freq: QS-DEC
+  tx_days_above_30_annual:
+    base: tx_days_above
+    parameters:
+      thresh: 30 degC
+      freq: YS-JAN
+  tn_days_above_22_annual:
+    base: tn_days_above
+    parameters:
+      thresh: 22 degC
+      freq: YS-JAN
+  no_thaw_days_annual:
+    base: tx_days_below
+    parameters:
+      thresh: "0 degC"
+      freq: YS-JAN
+  no_thaw_days_seasonal:
+    base: tx_days_below
+    parameters:
+      thresh: "0 degC"
+      freq: QS-DEC
+  degree_days_gt_22:
+    base: cooling_degree_days
+    parameters:
+      thresh: 22 degC
+      freq: YS-JAN
+  degree_days_gt_18:
+    base: cooling_degree_days
+    parameters:
+      thresh: 18 degC
+      freq: YS-JAN
+  degree_days_gt_5:
+    base: growing_degree_days
+    parameters:
+      thresh: 5 degC
+      freq: YS-JAN
+  degree_days_gt_0:
+    base: thawing_degree_days
+    parameters:
+      thresh: 0 degC
+      freq: YS-JAN
+  prcptot_annual:
+    base: prcptot
+    parameters:
+      freq: YS-JAN
+  prcptot_seasonal:
+    base: prcptot
+    parameters:
+      freq: QS-DEC
+  pr_days_above_1_annual:
+    base: wetdays
+    parameters:
+      thresh: "1 mm/d"
+      freq: YS-JAN
+  pr_days_above_1_seasonal:
+    base: wetdays
+    parameters:
+      thresh: "1 mm/d"
+      freq: QS-DEC
+  pr_days_above_20_annual:
+    base: wetdays
+    parameters:
+      thresh: "20 mm/d"
+      freq: YS-JAN
+  pr_days_above_20_seasonal:
+    base: wetdays
+    parameters:
+      thresh: "20 mm/d"
+      freq: QS-DEC
+  rx5day_annual:
+    base: max_n_day_precipitation_amount
+    parameters:
+      window: 5
+      freq: YS-JAN
+    keywords: rolling
+  rx1day_annual:
+    base: rx1day
+    parameters:
+      freq: YS-JAN
+  rx1day_season:
+    base: rx1day
+    parameters:
+      freq: QS-DEC
+  dry_days_annual:
+    base: dry_days
+    parameters:
+      thresh: "1 mm/d"
+      freq: YS-JAN
+  dry_days_seasonal:
+    base: dry_days
+    parameters:
+      thresh: "1 mm/d"
+      freq: QS-DEC
+  dry_spell_max_length:
+    base: dry_spell_max_length
+    parameters:
+      resample_before_rl: False
+      thresh: "1 mm"
+      op: max
+      freq: YS-JAN
+  dry_spell_max_length_seasonal:
+    base: dry_spell_max_length
+    parameters:
+      resample_before_rl: False
+      thresh: "1 mm"
+      op: max
+      freq: QS-DEC
+  dry_spell_frequency:
+    base: dry_spell_frequency
+    parameters:
+      resample_before_rl: False
+      thresh: "1 mm"
+      window: 6
+      op: max
+      freq: YS-JAN
+  dry_spell_frequency_seasonal:
+    base: dry_spell_frequency
+    parameters:
+      resample_before_rl: False
+      thresh: "1 mm"
+      window: 6
+      op: max
+      freq: QS-DEC
+  wet_spell_max_length_above_1:
+    base: wet_spell_max_length
+    parameters:
+      resample_before_rl: False
+      thresh: "1 mm"
+      window: 1
+      op: min
+      freq: YS-JAN
+  wet_spell_max_length_above_1_seasonal:
+    base: wet_spell_max_length
+    parameters:
+      resample_before_rl: False
+      thresh: "1 mm"
+      window: 1
+      op: min
+      freq: YS-JAN

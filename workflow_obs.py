@@ -259,24 +259,32 @@ if __name__ == "__main__":
     # --- PERFORMANCE ---
 
     if "performance" in CONFIG["tasks"]:
-        for statistic_name, search_param_dicts in CONFIG["performance"]["statistics"].items():
+        for statistic_name in CONFIG["performance"]["statistics"]:
             statistic_func = getattr(xsdba.measures, statistic_name)
-            for search_param_dict in search_param_dicts:
+
+            # loop over all the var avaialble instead of using the specific search_param_dict
+            variables= pcat.search(processing_level='indicators').df.variable.unique()
+            for variable in variables:
+                variable=variable[0]
+                print(variable)
+                #for search_param_dict in search_param_dicts:
                 # search_param_dict provides parameters for pcat.search, enabling selection
                 # of equivalent datasets (e.g., same variable; but from different sources)
                 
-                variable_name = search_param_dict["variable"] # The variable for which we're computing the measure
-                performance_variable_name = f"{variable_name}_{statistic_name}"
+                #variable_name = search_param_dict["variable"] # The variable for which we're computing the measure
+                performance_variable_name = f"{variable}_{statistic_name}"
 
                 obs_dict = pcat.search(
-                    **search_param_dict, # Shared search criteria (e.g., variable)
+                    #**search_param_dict, # Shared search criteria (e.g., variable)
+                    variable=variable,
                     **CONFIG["performance"]["input"]["observation"] # Observation-exclusive search criteria
-                ).to_dataset_dict()
+                ).to_dataset_dict(**tdd)
 
                 rec_dict = pcat.search(
-                    **search_param_dict,
+                    #**search_param_dict,
+                    variable=variable,
                     **CONFIG["performance"]["input"]["reconstruction"] # Reconstruction-exclusive search criteria
-                ).to_dataset_dict()
+                ).to_dataset_dict(**tdd)
 
                 for obs_dataset_id, obs_dataset in obs_dict.items(): # For each observation dataset
                     obs_source = obs_dataset.attrs['cat:source']
@@ -338,10 +346,15 @@ if __name__ == "__main__":
                             dobs = dobs.chunk({"time": -1})
                             drec = drec.chunk({"time": -1})
 
+                            # add units if there are none
+                            if 'units' not in drec[variable].attrs:
+                                drec[variable].attrs['units']="days"
+                            if 'units' not in dobs[variable].attrs:
+                                dobs[variable].attrs['units']="days"
                             ## Computing the performance metric ##
                             da_output = statistic_func( # The output data array
-                                sim=drec[variable_name],
-                                ref=dobs[variable_name]
+                                sim=drec[variable],
+                                ref=dobs[variable]
                             )
                             ds_output = da_output.to_dataset(name=performance_variable_name) # The output dataset
 
@@ -365,11 +378,13 @@ if __name__ == "__main__":
     # --- REGIONAL MEAN ---
     if "regional_mean" in CONFIG["tasks"]:
         regions = [(gdf[gdf["id"] == row.id], row.name) for row in gdf.itertuples(index=False)]
-
-        for search_param in CONFIG["regional_mean"]["search_params"]:
-            dict_input = pcat.search(**search_param, processing_level='performance').to_dataset_dict(**tdd)
-            if pcat.exists_in_cat(id='multiple', processing_level="regional_mean",variable=search_param['variable']):
-                logger.info(f"Skipping existing regional mean for: {search_param['variable']})")
+        
+        variables = pcat.search(processing_level='performance').df.variable.unique()
+        #for search_param in CONFIG["regional_mean"]["search_params"]:
+        for variable in variables:
+            dict_input = pcat.search(variable=variable, processing_level='performance').to_dataset_dict(**tdd)
+            if pcat.exists_in_cat(id='multiple', processing_level="regional_mean",variable=variable):
+                logger.info(f"Skipping existing regional mean for: {variable})")
                 continue
 
             source_datasets = [] # The datasets whose variables have been averaged
@@ -448,11 +463,11 @@ if __name__ == "__main__":
     # --- COHERENCE ---
     if "coherence" in CONFIG["tasks"]:
         logger.info("Started coherence task")
-        for search_param_dict in CONFIG["coherence"]["search_params"]:
-            logger.info(f"Checking: {search_param_dict}")
-            ds_dict = pcat.search(**search_param_dict).to_dataset_dict()
-
-            variable = search_param_dict["variable"]
+        variables = [v[0] for v in pcat.search(processing_level='climatology', type='reconstruction').df.variable.unique() if 'clim_mean' in v[0]]
+        for variable in variables:
+        #for search_param_dict in CONFIG["coherence"]["search_params"]:
+            logger.info(f"Checking: {variable}")
+            ds_dict = pcat.search(variable=variable,processing_level='climatology', type='reconstruction').to_dataset_dict(**tdd)
             
             # Check if this coherence dataset already exists
             if pcat.exists_in_cat(
@@ -461,15 +476,15 @@ if __name__ == "__main__":
                 processing_level="coherence",
                 variable=variable
             ):
-                logger.info(f"Skipping: {search_param_dict}")
+                logger.info(f"Skipping: {variable}")
                 continue
             
             spatial_means = []
 
             for name, ds in ds_dict.items():
+                logger.info(f"Coherence of {name}")
                 # Clean variable attributes
                 ds[variable].attrs.pop("grid_mapping", None)
-
                 # Compute spatial mean
                 ds_spatial_mean = xs.aggregate.spatial_mean(
                     ds,

@@ -175,13 +175,14 @@ performance:  # ------------------------------------- Performance --------------
   #
   # STATISTIC: Which statistic we're computing            e.g., 'rmse', 'mae', etc.
   # VARIABLE: Which variables we're computing it for      e.g., 'tg_mean_annual', 'pr_mean_seasonal'
-
   statistics:
-    rmse:
-      - variable: tg_mean_annual
-      - variable: tg_mean_seasonal
-      - variable: pr_mean_annual
-      - variable: pr_mean_seasonal
+    - rmse
+  # statistics:# not used now
+  #   rmse:
+  #     - variable: tg_mean_annual 
+  #     - variable: tg_mean_seasonal
+  #     - variable: pr_mean_annual
+  #     - variable: pr_mean_seasonal
 
   save:
     rechunk:
@@ -193,11 +194,11 @@ regional_mean: # ------------------------------------- Regional mean -----------
     n_workers: 4
     threads_per_worker: 2
     memory_limit: "8GB"
-  search_params:
-    - variable: tg_mean_annual_rmse
-    - variable: tg_mean_seasonal_rmse
-    - variable: pr_mean_annual_rmse
-    - variable: pr_mean_seasonal_rmse
+  # search_params: # not used now
+  #   - variable: tg_mean_annual_rmse 
+  #   - variable: tg_mean_seasonal_rmse
+  #   - variable: pr_mean_annual_rmse
+  #   - variable: pr_mean_seasonal_rmse
   #spatial_dims: ["lat", "lon", "rlat", "rlon"] # The dimensions which get averaged out
   save:
     rechunk:
@@ -208,15 +209,15 @@ coherence:  # ------------------------------------- Coherence ------------------
     n_workers: 4
     threads_per_worker: 4
     memory_limit: "8GB"
-  search_params:
-    - variable: "tg_mean_annual_clim_mean"
-      type: &type reconstruction
-    - variable: "pr_mean_annual_clim_mean"
-      type: *type
-    - variable: "tg_mean_seasonal_clim_mean"
-      type: *type
-    - variable: "pr_mean_seasonal_clim_mean"
-      type: *type
+  # search_params: # not used now
+  #   - variable: "tg_mean_annual_clim_mean"
+  #     type: &type reconstruction
+  #   - variable: "pr_mean_annual_clim_mean"
+  #     type: *type
+  #   - variable: "tg_mean_seasonal_clim_mean"
+  #     type: *type
+  #   - variable: "pr_mean_seasonal_clim_mean"
+  #     type: *type
 
 
 
