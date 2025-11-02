@@ -106,54 +106,54 @@ indicators:
       var_name: tn_mean
     parameters:
       freq: MS
-  # dtr_annual:
-  #   base: dtr
-  #   cf_attrs:
-  #     units: K
-  #     long_name: annual mean daily temperature range
-  #     var_name: dtr
-  #   parameters:
-  #     freq: YS
-  # dtr_seasonal:
-  #   base: dtr
-  #   cf_attrs:
-  #     nits: K
-  #     long_name: seasonal mean daily temperature range
-  #     var_name: dtr
-  #   parameters:
-  #     freq: QS-DEC
-  # dtr_monthly:
-  #   base: dtr
-  #   cf_attrs:
-  #     units: K
-  #     long_name: monthly mean daily temperature range
-  #     var_name: dtr
-  #   parameters:
-  #     freq: MS
-  # dtrmax_annual:
-  #   base: dtrmax
-  #   cf_attrs:
-  #     units: K
-  #     long_name: annual maximum daily temperature range
-  #     var_name: dtrmax
-  #   parameters:
-  #     freq: YS
-  # dtrmax_seasonal:
-  #   base: dtrmax
-  #   cf_attrs:
-  #     units: K
-  #     long_name: seasonal maximum daily temperature range
-  #     var_name: dtrmax
-  #   parameters:
-  #     freq: QS-DEC
-  # dtrmax_monthly:
-  #   base: dtrmax
-  #   cf_attrs:
-  #     units: K
-  #     long_name: monthly maximum daily temperature range
-  #     var_name: dtrmax
-  #   parameters:
-  #     freq: MS
+  dtr_annual:
+    base: dtr
+    cf_attrs:
+      units: K
+      long_name: annual mean daily temperature range
+      var_name: dtr
+    parameters:
+      freq: YS
+  dtr_seasonal:
+    base: dtr
+    cf_attrs:
+      nits: K
+      long_name: seasonal mean daily temperature range
+      var_name: dtr
+    parameters:
+      freq: QS-DEC
+  dtr_monthly:
+    base: dtr
+    cf_attrs:
+      units: K
+      long_name: monthly mean daily temperature range
+      var_name: dtr
+    parameters:
+      freq: MS
+  dtrmax_annual:
+    base: dtrmax
+    cf_attrs:
+      units: K
+      long_name: annual maximum daily temperature range
+      var_name: dtrmax
+    parameters:
+      freq: YS
+  dtrmax_seasonal:
+    base: dtrmax
+    cf_attrs:
+      units: K
+      long_name: seasonal maximum daily temperature range
+      var_name: dtrmax
+    parameters:
+      freq: QS-DEC
+  dtrmax_monthly:
+    base: dtrmax
+    cf_attrs:
+      units: K
+      long_name: monthly maximum daily temperature range
+      var_name: dtrmax
+    parameters:
+      freq: MS
 
 # ---------------------------- Standard Deviation Temperature Intra --------------------------------#
   tg_std_annual:
@@ -543,22 +543,22 @@ indicators:
 #     parameters:
 #       threshold1: -29 degC
 #       threshold2: -20 degC
-#   tx_max_annual: # NEW
-#     base: tx_max
-#     cf_attrs:
-#       units: degC
-#       long_name: annual maximum of daily maximum temperature
-#       var_name: tx_max
-#     parameters:
-#       freq: YS
-#   tn_min_annual: # NEW
-#     base: tn_min
-#     cf_attrs:
-#       units: degC
-#       long_name: annual minimum of daily minimum temperature
-#       var_name: tn_min
-#     parameters:
-#       freq: YS
+  tx_max_annual: # NEW
+    base: tx_max
+    cf_attrs:
+      units: degC
+      long_name: annual maximum of daily maximum temperature
+      var_name: tx_max
+    parameters:
+      freq: YS
+  tn_min_annual: # NEW
+    base: tn_min
+    cf_attrs:
+      units: degC
+      long_name: annual minimum of daily minimum temperature
+      var_name: tn_min
+    parameters:
+      freq: YS
 
 # # ---------------------------- Agro-climatic Indicators -------------------------------#
 #   growing_degree_days_gt_5_annual:   # modified from base 4! NEW

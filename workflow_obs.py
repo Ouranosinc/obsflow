@@ -187,6 +187,7 @@ if __name__ == "__main__":
                             for k, v in save_kwargs["encoding"].items()
                             if k in ds_clean.data_vars
                         }
+                    rechunk = {key:CONFIG["cleanup"]["xy_chunksize"] if key not in ['time',] else -1 for key in ds_clean.sizes}
                     xs.save_to_zarr(ds_clean, path, **save_kwargs)
                     pcat.update_from_ds(ds=ds_clean, path=path)
 
@@ -196,12 +197,14 @@ if __name__ == "__main__":
         dict_input = pcat.search(**CONFIG["indicators"]["inputs"]).to_dataset_dict(
             **tdd
         )
+
         logger.info(f"Datasets for indicator calculation:\n{'\n'.join(dict_input.keys())}")
+        logger.info(f"Value for xy_chunksize: {CONFIG['indicators']['xy_chunksize']}")
 
         for key_input, ds_input in sorted(dict_input.items()):
 
-            # # skip all but CaSR:
-            # if 'CaSR' not in key_input:
+            # # skip all but ...:
+            # if 'RDRS' not in key_input:
             #     continue
             
             with (
@@ -238,7 +241,7 @@ if __name__ == "__main__":
                         # save to zarr
                         for da in ds_ind.variables.values():
                             da.encoding.pop('chunks', '')
-                        rechunk = {key:30 for key in ds_ind.sizes}
+                        rechunk = {key:CONFIG["indicators"]["xy_chunksize"] if key not in ['time', 'horizon', 'season', 'month', 'linreg_param'] else -1 for key in ds_ind.sizes}
                         path_ind = f"{CONFIG['paths']['task']}".format(**cur)
                         xs.save_to_zarr(ds_ind, path_ind, **CONFIG["indicators"]["save"], rechunk=rechunk)
                         pcat.update_from_ds(ds=ds_ind, path=path_ind)
@@ -366,7 +369,7 @@ if __name__ == "__main__":
                     # save to zarr
                     for da in ds_clim.variables.values():
                         da.encoding.pop('chunks', '')
-                    rechunk = {key:30 for key in ds_clim.sizes}
+                    rechunk = {key:CONFIG["climatologies"]["xy_chunksize"] if key not in ['time', 'horizon', 'season', 'month', 'linreg_param'] else -1 for key in ds_clim.sizes}
                     path = f"{CONFIG['paths']['task']}".format(**cur)
                     xs.save_to_zarr(ds_clim, path, **CONFIG["aggregate"]["save"], rechunk=rechunk)
                     pcat.update_from_ds(ds=ds_clim, path=path)
