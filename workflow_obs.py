@@ -13,6 +13,13 @@ import xclim
 import xscen as xs
 from xscen.config import CONFIG
 
+# suppress warnings
+warnings.filterwarnings("ignore", message="Variable has a non-conforming cell_methods")
+warnings.filterwarnings("ignore", message="already exists and will be overwritten")    
+warnings.filterwarnings("ignore", message="Variable has a non-conforming standard_name")
+warnings.filterwarnings("ignore", message="Variable does not have a `cell_methods` attribute")
+warnings.filterwarnings("ignore", message="Passed docstring ignored when extending existing module")
+
 # Load configuration
 xs.load_config(
     "paths_obs.yml", "config_obs.yml", verbose=(__name__ == "__main__"), reset=True
@@ -27,8 +34,8 @@ if __name__ == "__main__":
     daskkws = CONFIG["dask"].get("client", {})
     dskconf.set(**{k: v for k, v in CONFIG["dask"].items() if k != "client"})
 
-    # set xclim config to compute indicators on 3H data FixMe: can this be removed?
-    xclim.set_options(data_validation="log")
+    # set xclim config
+    xclim.set_options(**CONFIG["set_options"])
 
     # copy config to the top of the log file
     if "logging" in CONFIG and "file" in CONFIG["logging"]["handlers"]:
@@ -180,6 +187,7 @@ if __name__ == "__main__":
                             for k, v in save_kwargs["encoding"].items()
                             if k in ds_clean.data_vars
                         }
+                    rechunk = {key:CONFIG["cleanup"]["xy_chunksize"] if key not in ['time',] else -1 for key in ds_clean.sizes}
                     xs.save_to_zarr(ds_clean, path, **save_kwargs)
                     pcat.update_from_ds(ds=ds_clean, path=path)
 
@@ -189,7 +197,16 @@ if __name__ == "__main__":
         dict_input = pcat.search(**CONFIG["indicators"]["inputs"]).to_dataset_dict(
             **tdd
         )
+
+        logger.info(f"Datasets for indicator calculation:\n{'\n'.join(dict_input.keys())}")
+        logger.info(f"Value for xy_chunksize: {CONFIG['indicators']['xy_chunksize']}")
+
         for key_input, ds_input in sorted(dict_input.items()):
+
+            # # skip all but ...:
+            # if 'RDRS' not in key_input:
+            #     continue
+            
             with (
                 Client(**CONFIG["indicators"]["dask"], **daskkws),
                 xs.measure_time(name=f"indicators {key_input}", logger=logger)
@@ -206,6 +223,7 @@ if __name__ == "__main__":
                                             .quantile(0.99, dim='time', keep_attrs=True))
 
                 # compute indicators
+                ds_input = xarray.unify_chunks(ds_input)[0]
                 dict_indicator = xs.compute_indicators(
                     ds=ds_input,
                     indicators=xs.indicators.select_inds_for_avail_vars(ds_input,
@@ -221,8 +239,11 @@ if __name__ == "__main__":
                     }
                     if not pcat.exists_in_cat(**cur):
                         # save to zarr
+                        for da in ds_ind.variables.values():
+                            da.encoding.pop('chunks', '')
+                        rechunk = {key:CONFIG["indicators"]["xy_chunksize"] if key not in ['time', 'horizon', 'season', 'month', 'linreg_param'] else -1 for key in ds_ind.sizes}
                         path_ind = f"{CONFIG['paths']['task']}".format(**cur)
-                        xs.save_to_zarr(ds_ind, path_ind, **CONFIG["indicators"]["save"])
+                        xs.save_to_zarr(ds_ind, path_ind, **CONFIG["indicators"]["save"], rechunk=rechunk)
                         pcat.update_from_ds(ds=ds_ind, path=path_ind)
 
     # --- CLIMATOLOGIES ---
@@ -346,8 +367,11 @@ if __name__ == "__main__":
                     ds_clim = xr.merge([ds.drop_vars('time') for ds in all_horizons], combine_attrs='override')
 
                     # save to zarr
+                    for da in ds_clim.variables.values():
+                        da.encoding.pop('chunks', '')
+                    rechunk = {key:CONFIG["climatologies"]["xy_chunksize"] if key not in ['time', 'horizon', 'season', 'month', 'linreg_param'] else -1 for key in ds_clim.sizes}
                     path = f"{CONFIG['paths']['task']}".format(**cur)
-                    xs.save_to_zarr(ds_clim, path, **CONFIG["aggregate"]["save"])
+                    xs.save_to_zarr(ds_clim, path, **CONFIG["aggregate"]["save"], rechunk=rechunk)
                     pcat.update_from_ds(ds=ds_clim, path=path)
 
     # --- PLOTTING ---

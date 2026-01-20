@@ -13,10 +13,10 @@
 tasks:
   #- extract # Extract station data, (gridded observation data), and reanalysis data.
   #- regrid # Regrid the simulation onto a common grid (ERA5-Land).
-  #- cleanup # Handle different units in datasets.
-  #- indicators # Compute xclim indicators on the datasets.
-  #- climatologies # Compute climatological operations for the indicators (mean, std, trend).
-  - plotting # Make plots of results from climatological operations for annual, seasonal, and monthly data.
+  # - cleanup # Handle different units in datasets.
+  - indicators # Compute xclim indicators on the datasets.
+  # - climatologies # Compute climatological operations for the indicators (mean, std, trend).
+  #- plotting # Make plots of results from climatological operations for annual, seasonal, and monthly data.
   #- "ensembles" # Compute/compare different datasets and assess uncertainties in historical data (ToDo)
 
 # Task Arguments
@@ -44,11 +44,12 @@ extract:  # ------------------------------------- Extraction -------------------
         source:
           - ERA5-Land
           - RDRS
+          - CaSR
     extract_dataset:
       region: &region
         name: Quebec
         method: shape
-        tile_buffer: 1.0 #1.5
+        tile_buffer: 0.0 #1.5
         shape: /exec/braun/data/obsflow/gis/region_admin.zip!region_admin.shp # shape:shape to create a dictionary (deprecated)
         # shape: /scen3/braun/data/obs_synthese23/gis/lpr_000b16a_e_QC_simpl1.zip!lpr_000b16a_e_QC_simpl1.shp # shape:shape to create a dictionary (deprecated)
     stack_drop_nans: &stack
@@ -85,7 +86,9 @@ extract:  # ------------------------------------- Extraction -------------------
       - '1950' # defaults to None == extract all available data!
       - '2021'
       other_search_criteria:
-        source: AHCCD
+        source: 
+          - AHCCD
+          - CanHomT-daily
     extract_dataset:
       region:
         name: Quebec
@@ -197,11 +200,13 @@ regrid:
     memory_limit: 10GB
   inputs:
     type: reconstruction
-    processing_level: extracted
-    source: RDRS
+    processing_level: extracted # should use indicators or climatology
+    source: 
+      - RDRS
+      - CaSR
   output:
     type: reconstruction
-    processing_level: extracted
+    processing_level: extracted # should use indicators or climatology
     source: ERA5-Land
   regrid_dataset: # this will be automatically passed to the function.
     regridder_kwargs:
@@ -209,6 +214,7 @@ regrid:
       extrap_method: inverse_dist
       locstream_out: *stack
       reuse_weights: False
+  xy_chunksize : &xy_chunksize 50
   save: &save_time_-1
     mode: o
     rechunk:
@@ -230,7 +236,7 @@ cleanup:
 #      pr: D
 #    allow_conversion: True
 #    allow_resampling: False
-    processing_level: extracted # ToDo: change to regridded!
+    processing_level: extracted 
   xscen_clean_up:
     to_level: extracted-cleaned
     maybe_unstack_dict:
@@ -251,6 +257,7 @@ cleanup:
 #      tasmax: interpolate
 #      tasmin: interpolate
 #      pr: [ 0 ]
+  xy_chunksize :  *xy_chunksize
   save:
     mode: o
     encoding:
@@ -259,12 +266,10 @@ cleanup:
       tasmin: *f32
       pr: *f32
 
-
-
 indicators:  # ------------------------------------- Indicators --------------------------------------------------
   dask:
     n_workers: 8
-    threads_per_worker: 5
+    threads_per_worker: 1
     memory_limit: "8GB"
   inputs:
     processing_level: extracted-cleaned
@@ -273,10 +278,9 @@ indicators:  # ------------------------------------- Indicators ----------------
     to: 2010-12-31
   compute_indicators:
     to_level: indicators
+  xy_chunksize : *xy_chunksize
   save: #*save_time_-1
     mode: o
-    rechunk:
-      time: -1
 
 aggregate:  # ------------------------------------- Climatological Operations -------------------------------------
   dask:
@@ -284,14 +288,14 @@ aggregate:  # ------------------------------------- Climatological Operations --
     threads_per_worker: 4
     memory_limit: "15GB"
   periods:
-    - ['1951', '1980']
-    - ['1961', '1990']
+    # - ['1951', '1980']
+    # - ['1961', '1990']
     - ['1961', '2020']
-    - ['1971', '2000']
-    - ['1981', '2010']
+    # - ['1971', '2000']
+    # - ['1981', '2010']
     - ['1981', '2018']
-    - ['1988', '2017']
-    - ['1991', '2018']
+    # - ['1988', '2017']
+    # - ['1991', '2018']
     - ['1991', '2020']
     # - ['1980', '1985']]
   input:
@@ -301,43 +305,43 @@ aggregate:  # ------------------------------------- Climatological Operations --
     op: mean
     to_level: climatology
   vars_for_interannual_std: &indicators
-    - R95pTOT
-    - R99pTOT
-    - RX1day
-    - RX5day
-    - days_above_0
-    - days_below_m25
-    - freeze_thaw_cycles
-    - freezing_degree_days_lt_0
-    - degree_days_above_0
-    #    - frost_free_season_start
-    #    - frost_free_season_end
-    #    - frost_free_season_length
-    - growing_season_length
-    - growing_degree_days_gt_5
-    - heating_degree_days_lt_15
-    - cooling_degree_days_gt_18
-    - heat_spell_total_length_class1
-    - heat_spell_frequency_class1
-    - heat_spell_total_length_class2
-    - heat_spell_frequency_class2
-    - heat_spell_total_length_class3
-    - heat_spell_frequency_class3
-    - cold_spell_total_length_class1
-    - cold_spell_frequency_class1
-    - cold_spell_total_length_class2
-    - cold_spell_frequency_class2
-    - cold_spell_total_length_class3
-    - cold_spell_frequency_class3
-    - hot_days_gt_30
-    - hot_days_gt_32
+    # - R95pTOT
+    # - R99pTOT
+    # - RX1day
+    # - RX5day
+    # - days_above_0
+    # - days_below_m25
+    # - freeze_thaw_cycles
+    # - freezing_degree_days_lt_0
+    # - degree_days_above_0
+    # #    - frost_free_season_start
+    # #    - frost_free_season_end
+    # #    - frost_free_season_length
+    # - growing_season_length
+    # - growing_degree_days_gt_5
+    # - heating_degree_days_lt_15
+    # - cooling_degree_days_gt_18
+    # - heat_spell_total_length_class1
+    # - heat_spell_frequency_class1
+    # - heat_spell_total_length_class2
+    # - heat_spell_frequency_class2
+    # - heat_spell_total_length_class3
+    # - heat_spell_frequency_class3
+    # - cold_spell_total_length_class1
+    # - cold_spell_frequency_class1
+    # - cold_spell_total_length_class2
+    # - cold_spell_frequency_class2
+    # - cold_spell_total_length_class3
+    # - cold_spell_frequency_class3
+    # - hot_days_gt_30
+    # - hot_days_gt_32
     - pr_mean
     - tg_mean
     - tn_mean
     - tn_min
-    - tropical_nights_gt_20
-    - tropical_nights_gt_22
-    - tx_days_below_0
+    # - tropical_nights_gt_20
+    # - tropical_nights_gt_22
+    # - tx_days_below_0
     - tx_mean
     - tx_max
     - dtr
@@ -354,6 +358,7 @@ aggregate:  # ------------------------------------- Climatological Operations --
   climatological_trend: # automatically passed to the function
     op: linregress
     to_level: climatology
+  xy_chunksize : *xy_chunksize
   save:
     mode: o
 
@@ -378,23 +383,23 @@ plotting:  # ------------------------------------- Plotting --------------------
 #    - RX5day_clim_linregress
 #    - RX5day_clim_mean
 #    - RX5day_clim_std
-    - cold_spell_frequency_class1_clim_linregress
-    - cold_spell_frequency_class1_clim_mean
-    - cold_spell_frequency_class2_clim_linregress
-    - cold_spell_frequency_class2_clim_mean
-    - cold_spell_frequency_class2_clim_std
-    - cold_spell_frequency_class3_clim_linregress
-    - cold_spell_frequency_class3_clim_mean
-    - cold_spell_frequency_class3_clim_std
-    - cold_spell_total_length_class1_clim_linregress
-    - cold_spell_total_length_class1_clim_mean
-    - cold_spell_total_length_class1_clim_std
-    - cold_spell_total_length_class2_clim_linregress
-    - cold_spell_total_length_class2_clim_mean
-    - cold_spell_total_length_class2_clim_std
-    - cold_spell_total_length_class3_clim_linregress
-    - cold_spell_total_length_class3_clim_mean
-    - cold_spell_total_length_class3_clim_std
+    # - cold_spell_frequency_class1_clim_linregress
+    # - cold_spell_frequency_class1_clim_mean
+    # - cold_spell_frequency_class2_clim_linregress
+    # - cold_spell_frequency_class2_clim_mean
+    # - cold_spell_frequency_class2_clim_std
+    # - cold_spell_frequency_class3_clim_linregress
+    # - cold_spell_frequency_class3_clim_mean
+    # - cold_spell_frequency_class3_clim_std
+    # - cold_spell_total_length_class1_clim_linregress
+    # - cold_spell_total_length_class1_clim_mean
+    # - cold_spell_total_length_class1_clim_std
+    # - cold_spell_total_length_class2_clim_linregress
+    # - cold_spell_total_length_class2_clim_mean
+    # - cold_spell_total_length_class2_clim_std
+    # - cold_spell_total_length_class3_clim_linregress
+    # - cold_spell_total_length_class3_clim_mean
+    # - cold_spell_total_length_class3_clim_std
 #    - cooling_degree_days_gt_18_clim_linregress
 #    - cooling_degree_days_gt_18_clim_mean
 #    - cooling_degree_days_gt_18_clim_std
@@ -449,24 +454,24 @@ plotting:  # ------------------------------------- Plotting --------------------
 #    - hot_days_gt_32_clim_linregress
 #    - hot_days_gt_32_clim_mean
 #    - hot_days_gt_32_clim_std
-#    - pr_mean_clim_linregress
-#    - pr_mean_clim_mean
-#    - pr_mean_clim_std
-#    - pr_std_clim_mean
-#    - pr_std_clim_total
-#    - tg_mean_clim_linregress
-#    - tg_mean_clim_mean
-#    - tg_mean_clim_std
-#    - tg_std_clim_mean
-#    - tg_std_clim_total
-#    - tn_mean_clim_linregress
-#    - tn_mean_clim_mean
-#    - tn_mean_clim_std
-#    - tn_min_clim_linregress
-#    - tn_min_clim_mean
-#    - tn_min_clim_std
-#    - tn_std_clim_mean
-#    - tn_std_clim_total
+    - pr_mean_clim_linregress
+    - pr_mean_clim_mean
+    - pr_mean_clim_std
+    - pr_std_clim_mean
+    - pr_std_clim_total
+    - tg_mean_clim_linregress
+    - tg_mean_clim_mean
+    - tg_mean_clim_std
+    - tg_std_clim_mean
+    - tg_std_clim_total
+    - tn_mean_clim_linregress
+    - tn_mean_clim_mean
+    - tn_mean_clim_std
+    - tn_min_clim_linregress
+    - tn_min_clim_mean
+    - tn_min_clim_std
+    - tn_std_clim_mean
+    - tn_std_clim_total
 #    - tropical_nights_gt_20_clim_linregress
 #    - tropical_nights_gt_20_clim_mean
 #    - tropical_nights_gt_20_clim_std
@@ -476,14 +481,14 @@ plotting:  # ------------------------------------- Plotting --------------------
 #    - tx_days_below_0_clim_linregress
 #    - tx_days_below_0_clim_mean
 #    - tx_days_below_0_clim_std
-#    - tx_max_clim_linregress
-#    - tx_max_clim_mean
-#    - tx_max_clim_std
-#    - tx_mean_clim_linregress
-#    - tx_mean_clim_mean
-#    - tx_mean_clim_std
-#    - tx_std_clim_mean
-#    - tx_std_clim_total
+    - tx_max_clim_linregress
+    - tx_max_clim_mean
+    - tx_max_clim_std
+    - tx_mean_clim_linregress
+    - tx_mean_clim_mean
+    - tx_mean_clim_std
+    - tx_std_clim_mean
+    - tx_std_clim_total
   # global plot arguments
   gridmap_kwargs:
     contourf: True
@@ -1540,6 +1545,10 @@ scripting: # send an email when code fails or succeed
     msg_err: I crashed, something went wrong!
     on_error_only: True
 
+set_options:
+  data_validation: log
+  check_missing: wmo
+  # use_new_combine_kwarg_defaults: True
 
 dask: # general dask arguments
   array.slicing.split_large_chunks: False
